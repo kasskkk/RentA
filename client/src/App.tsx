@@ -14,6 +14,7 @@ function App() {
 
   return (
     <>
+      <button className="btn btn-primary">Button</button>
       <h3 className="app" style={{ color: 'red' }}>RentA</h3>
       <ul>
         {apartmens.map((apartment) => (
