@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react"
 
 function App() {
@@ -5,16 +6,14 @@ function App() {
   const [apartmens, setApartmens] = useState<Apartment[]>([]);
 
   useEffect(() => {
-    fetch('https://localhost:5001/api/apartments')
-      .then(response => response.json())
-      .then(data => setApartmens(data))
+    axios.get<Apartment[]>('https://localhost:5001/api/apartments')
+      .then(response => setApartmens(response.data))
 
     return () => { }
   }, [])
 
   return (
-    <>
-      <button className="btn btn-primary">Button</button>
+    <>   
       <h3 className="app" style={{ color: 'red' }}>RentA</h3>
       <ul>
         {apartmens.map((apartment) => (
