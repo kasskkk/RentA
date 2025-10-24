@@ -1,29 +1,44 @@
 using System;
+using Application.Apartments.Commands;
+using Application.Apartments.Queries;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Persistence;
 
 namespace API.Controllers;
 
-public class ApartmentsController(AppDbContext context) : BaseApiController
+public class ApartmentsController : BaseApiController
 {
     [HttpGet]
     public async Task<ActionResult<List<Apartment>>> GetApartments()
     {
-        return await context.Apartments.ToListAsync();
+        return await Mediator.Send(new GetApartmentList.Query());
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Apartment>> GetApartmentDetail(string id)
     {
-        var apartment = await context.Apartments.FindAsync(id);
+        return await Mediator.Send(new GetApartmentDetails.Query { Id = id });
+    }
 
-        if (apartment == null)
-        {
-            return NotFound();
-        }
+    [HttpPost]
+    public async Task<ActionResult<string>> CreateApartment(Apartment apartment)
+    {
+        return await Mediator.Send(new CreateApartment.Command { Apartment = apartment });
+    }
 
-        return apartment;
+    [HttpPut]
+    public async Task<ActionResult> EditApartment(Apartment apartment)
+    {
+        await Mediator.Send(new EditApartment.Command { Apartment = apartment });
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteApartment(string id)
+    {
+        await Mediator.Send(new DeleteApartment.Command { Id = id });
+
+        return NoContent();
     }
 }

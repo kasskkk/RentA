@@ -484,3 +484,5 @@ $RECYCLE.BIN/
 *.swp
 API/appsettings.json
 API/renta.db
+API/renta.db-shm
+API/renta.db-wal
