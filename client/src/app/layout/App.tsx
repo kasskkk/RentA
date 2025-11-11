@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react"
+import NavBar from "./NavBar";
+import SideBar from "./SideBar";
 
 function App() {
 
-  const [apartmens, setApartmens] = useState<Apartment[]>([]);
+  const [apartments, setApartmens] = useState<Apartment[]>([]);
 
   useEffect(() => {
     axios.get<Apartment[]>('https://localhost:5001/api/apartments')
@@ -13,13 +15,24 @@ function App() {
   }, [])
 
   return (
-    <>   
-      <h3 className="app" style={{ color: 'red' }}>RentA</h3>
-      <ul>
-        {apartmens.map((apartment) => (
-          <li key={apartment.id}>{apartment.name}</li>
-        ))}
-      </ul>
+    <>
+      <div className="drawer lg:drawer-open">
+        <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+        <div className="drawer-content">
+          {/* Navbar */}
+          <NavBar />
+          {/* Page content here */}
+          <div className="p-4">
+            <ul>
+              {apartments.map((apartment) => (
+                <li key={apartment.id}>{apartment.name}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <SideBar />
+      </div>
     </>
   )
 }
