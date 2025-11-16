@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react"
 import NavBar from "./NavBar";
 import SideBar from "./SideBar";
+import ApartmentDashboard from "../features/apartments/dashboard/ApartmentDashboard";
 
 function App() {
 
@@ -23,14 +24,11 @@ function App() {
           <NavBar />
           {/* Page content here */}
           <div className="p-4">
-            <ul>
-              {apartments.map((apartment) => (
-                <li key={apartment.id}>{apartment.name}</li>
-              ))}
-            </ul>
+            <ApartmentDashboard apartments={apartments} />
           </div>
-        </div>
 
+        </div>
+        {/* Sidebar */}
         <SideBar />
       </div>
     </>
