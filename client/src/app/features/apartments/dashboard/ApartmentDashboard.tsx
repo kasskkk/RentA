@@ -2,11 +2,17 @@ import ApartmentList from "./ApartmentList";
 
 type Props = {
     apartments: Apartment[];
+    selectApartment: (id: string) => void;
+    cancelSelectApartment: () => void;
+    selectedApartment?: Apartment;
+    openForm: (id: string) => void;
+    closeForm: () => void;
+    editMode: boolean;
 }
-export default function ApartmentDashboard({ apartments }: Props) {
+export default function ApartmentDashboard({ apartments, selectApartment, cancelSelectApartment, selectedApartment, openForm, closeForm, editMode }: Props) {
     return (
-        <ul>
+        <>
             <ApartmentList apartments={apartments} />
-        </ul>
+        </>
     )
 }

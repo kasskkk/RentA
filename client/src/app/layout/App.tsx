@@ -7,6 +7,8 @@ import ApartmentDashboard from "../features/apartments/dashboard/ApartmentDashbo
 function App() {
 
   const [apartments, setApartmens] = useState<Apartment[]>([]);
+  const [selectedApartment, setSelectedApartment] = useState<Apartment | undefined>(undefined);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     axios.get<Apartment[]>('https://localhost:5001/api/apartments')
@@ -14,6 +16,24 @@ function App() {
 
     return () => { }
   }, [])
+
+  const handleSelectApartment = (id: string) => {
+    setSelectedApartment(apartments.find(x => x.id === id));
+  }
+
+  const handleCancelSelectApartment = () => {
+    setSelectedApartment(undefined);
+  }
+
+  const handleOpenForm = (id?: string) => {
+    if (id) handleSelectApartment(id);
+    else handleCancelSelectApartment();
+    setEditMode(true);
+  }
+
+  const handleCloseForm = () => {
+    setEditMode(false);
+  }
 
   return (
     <>
@@ -26,11 +46,11 @@ function App() {
           <div className="drawer-content">
             {/* Page content here */}
             <div className="p-4">
-              <ApartmentDashboard apartments={apartments} />
+              <ApartmentDashboard apartments={apartments} selectApartment={handleSelectApartment} cancelSelectApartment={handleCancelSelectApartment} editMode={editMode} openForm={handleOpenForm} closeForm={handleCloseForm} />
             </div>
           </div>
           {/* Sidebar */}
-          <SideBar />
+          <SideBar openForm={handleOpenForm} />
         </div>
       </div>
     </>
