@@ -1,6 +1,6 @@
 export default function ApartmentForm() {
     return (
-        <>
+        <form>
             <div>Create Apartment</div>
             <div>
                 <fieldset className="fieldset">
@@ -43,6 +43,6 @@ export default function ApartmentForm() {
                     <button className="btn">Submit</button>
                 </div>
             </div>
-        </>
+        </form>
     )
 }

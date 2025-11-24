@@ -1,39 +1,10 @@
-import axios from "axios";
-import { useEffect, useState } from "react"
 import NavBar from "./NavBar";
 import SideBar from "./SideBar";
 import ApartmentDashboard from "../features/apartments/dashboard/ApartmentDashboard";
+import { useApartments } from "../../lib/hooks/useApartments";
 
 function App() {
-
-  const [apartments, setApartmens] = useState<Apartment[]>([]);
-  const [selectedApartment, setSelectedApartment] = useState<Apartment | undefined>(undefined);
-  const [editMode, setEditMode] = useState(false);
-
-  useEffect(() => {
-    axios.get<Apartment[]>('https://localhost:5001/api/apartments')
-      .then(response => setApartmens(response.data))
-
-    return () => { }
-  }, [])
-
-  const handleSelectApartment = (id: string) => {
-    setSelectedApartment(apartments.find(x => x.id === id));
-  }
-
-  const handleCancelSelectApartment = () => {
-    setSelectedApartment(undefined);
-  }
-
-  const handleOpenForm = (id?: string) => {
-    if (id) handleSelectApartment(id);
-    else handleCancelSelectApartment();
-    setEditMode(true);
-  }
-
-  const handleCloseForm = () => {
-    setEditMode(false);
-  }
+  const { apartments, isPending } = useApartments();
 
   return (
     <>
@@ -46,11 +17,17 @@ function App() {
           <div className="drawer-content">
             {/* Page content here */}
             <div className="p-4">
-              <ApartmentDashboard apartments={apartments} selectApartment={handleSelectApartment} cancelSelectApartment={handleCancelSelectApartment} editMode={editMode} openForm={handleOpenForm} closeForm={handleCloseForm} />
+              {!apartments || isPending ? (
+                <h1>
+                  laduje sie
+                </h1>
+              ) : (
+                <ApartmentDashboard apartments={apartments} />
+              )}
             </div>
           </div>
           {/* Sidebar */}
-          <SideBar openForm={handleOpenForm} />
+          <SideBar />
         </div>
       </div>
     </>
