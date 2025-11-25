@@ -1,12 +1,15 @@
+import { useApartments } from "../../../../lib/hooks/useApartments";
 import ApartmentList from "./ApartmentList";
 
-type Props = {
-    apartments: Apartment[];
-}
-export default function ApartmentDashboard({ apartments }: Props) {
+
+export default function ApartmentDashboard() {
+    const { apartments, isPending } = useApartments();
+
+    if (!apartments || isPending) return <div>Laduje sie</div>
+
     return (
         <>
-            <ApartmentList apartments={apartments} />
+            <ApartmentList />
         </>
     )
 }

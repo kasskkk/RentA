@@ -1,10 +1,9 @@
 import NavBar from "./NavBar";
 import SideBar from "./SideBar";
-import ApartmentDashboard from "../features/apartments/dashboard/ApartmentDashboard";
-import { useApartments } from "../../lib/hooks/useApartments";
+import { Outlet } from "react-router";
 
 function App() {
-  const { apartments, isPending } = useApartments();
+
 
   return (
     <>
@@ -17,13 +16,7 @@ function App() {
           <div className="drawer-content">
             {/* Page content here */}
             <div className="p-4">
-              {!apartments || isPending ? (
-                <h1>
-                  laduje sie
-                </h1>
-              ) : (
-                <ApartmentDashboard apartments={apartments} />
-              )}
+              <Outlet />
             </div>
           </div>
           {/* Sidebar */}

@@ -1,3 +1,5 @@
+import { NavLink } from "react-router";
+
 export default function SideBar() {
     return (
         <div className="drawer-side is-drawer-close:overflow-visible">
@@ -7,20 +9,29 @@ export default function SideBar() {
                 <ul className="menu w-full grow">
                     {/* List item */}
                     <li>
-                        <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
+                        <NavLink to="/" className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
                             {/* Home icon */}
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                             <span className="is-drawer-close:hidden">Homepage</span>
-                        </button>
+                        </NavLink>
                     </li>
 
                     {/* List item */}
                     <li>
-                        <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Create Apartment" >
+                        <NavLink to="/apartments" className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Apartments" >
+                            {/* Settings icon */}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M12 6h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/><path d="M8 6h.01"/><path d="M9 22v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/><rect x="4" y="2" width="16" height="20" rx="2"/></svg>
+                            <span className="is-drawer-close:hidden block truncate">Apartments</span>
+                        </NavLink>
+                    </li>
+
+                    {/* List item */}
+                    <li>
+                        <NavLink to="/createApartment" className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Create Apartment" >
                             {/* Settings icon */}
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M8 12h8" /><path d="M12 8v8" /></svg>
                             <span className="is-drawer-close:hidden block truncate">Create Apartment</span>
-                        </button>
+                        </NavLink>
                     </li>
 
                     {/* List item */}

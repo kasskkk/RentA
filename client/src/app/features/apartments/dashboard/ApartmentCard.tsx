@@ -1,3 +1,5 @@
+import { NavLink } from "react-router"
+
 type Props = {
     apartment: Apartment
 }
@@ -16,8 +18,8 @@ export default function ApartmentCard({ apartment }: Props) {
                 <h2 className="card-title text-sm">{apartment.name}</h2>
                 <p className="text-xs">{apartment.description}</p>
                 <div className="card-actions justify-end">
-                    <button className="btn btn-primary btn-sm">Edit</button>
-                    <button className="btn btn-primary btn-sm">Details</button>
+                    <NavLink to="/createApartment" className="btn btn-primary btn-sm">Edit</NavLink>
+                    <NavLink to={`/apartments/${apartment.id}`} className="btn btn-primary btn-sm">Details</NavLink>
                 </div>
             </div>
         </div>
