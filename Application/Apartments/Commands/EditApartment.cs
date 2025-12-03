@@ -1,4 +1,5 @@
 using System;
+using Application.Apartments.DTOs;
 using Application.Core;
 using AutoMapper;
 using Domain;
@@ -11,7 +12,7 @@ public class EditApartment
 {
     public class Command : IRequest<Result<Unit>>
     {
-        public required Apartment Apartment { get; set; }
+        public required EditApartmentDto ApartmentDto { get; set; }
     }
 
     public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Command, Result<Unit>>
@@ -19,11 +20,11 @@ public class EditApartment
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             var apartment = await context.Apartments
-                .FindAsync([request.Apartment.Id], cancellationToken);
+                .FindAsync([request.ApartmentDto.Id], cancellationToken);
 
             if (apartment == null) return Result<Unit>.Failure("Apartment not found", 404);
 
-            mapper.Map(request.Apartment, apartment);
+            mapper.Map(request.ApartmentDto, apartment);
 
             var result = await context.SaveChangesAsync(cancellationToken) > 0;
 

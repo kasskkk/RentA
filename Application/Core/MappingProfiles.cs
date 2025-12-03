@@ -11,6 +11,6 @@ public class MappingProfiles : Profile
     {
         CreateMap<Apartment, Apartment>();
         CreateMap<CreateApartmentDto, Apartment>();
-
+        CreateMap<EditApartmentDto, Apartment>();
     }
 }

@@ -28,9 +28,9 @@ public class ApartmentsController : BaseApiController
     }
 
     [HttpPut]
-    public async Task<ActionResult> EditApartment(Apartment apartment)
+    public async Task<ActionResult> EditApartment(EditApartmentDto apartmentDto)
     {
-        return HandleResult(await Mediator.Send(new EditApartment.Command { Apartment = apartment }));
+        return HandleResult(await Mediator.Send(new EditApartment.Command { ApartmentDto = apartmentDto }));
     }
 
     [HttpDelete("{id}")]
