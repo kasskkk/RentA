@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { useState } from "react";
 import agent from '../../../lib/api/agent';
+import { useState } from 'react';
 
 export default function TestErrors() {
     const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -26,7 +26,6 @@ export default function TestErrors() {
     return (
         <>
             <div >Test errors component</div>
-
             <div>
                 <button className='btn' onClick={() => handleError('buggy/not-found')}>
                     Not found
@@ -34,7 +33,7 @@ export default function TestErrors() {
                 <button className='btn' onClick={() => handleError('buggy/bad-request')}>
                     Bad request
                 </button>
-                <button className='btn' onClick={() => handleError('activities', 'post')}>
+                <button className='btn' onClick={() => handleError('apartments', 'post')}>
                     Validation error
                 </button>
                 <button className='btn' onClick={() => handleError('buggy/server-error')}>
@@ -44,6 +43,10 @@ export default function TestErrors() {
                     Unauthorised
                 </button>
             </div>
+
+            {validationErrors.map((err, i) => (
+                <li className='color: red' key={i}>{err}</li>
+            ))}
         </>
     );
 }

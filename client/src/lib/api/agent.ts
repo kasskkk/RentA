@@ -1,4 +1,6 @@
 import axios from "axios";
+import toast from "react-hot-toast";
+import { router } from "../../app/router/Routes";
 
 const agent = axios.create({
     baseURL: import.meta.env.VITE_API_URL
@@ -9,14 +11,44 @@ const sleep = (delay: number) => {
         setTimeout(resolve, delay)
     });
 }
-agent.interceptors.response.use(async response => {
-    try {
-        // Delay to pretend dta fetch
+agent.interceptors.response.use(
+    async response => {
         await sleep(1000);
         return response;
-    } catch (error) {
+    },
+    async error => {
+        await sleep(1000);
+
+        const { status, data } = error.response;
+        switch (status) {
+            case 400:
+                if (data.errors) {
+                    const modalStateErrors = [];
+                    for (const key in data.errors) {
+                        if (data.errors[key]) {
+                            modalStateErrors.push(data.errors[key]);
+                        }
+                    }
+                    throw modalStateErrors.flat();
+                } else {
+                    toast.error(data);
+                }
+                break;
+            case 401:
+                toast.error('Unauthorised');
+                break;
+            case 404:
+                router.navigate('/not-found');
+                break;
+            case 500:
+                router.navigate('/server-error', {state: {error: data}})
+                break;
+            default:
+                break;
+        }
+
         return Promise.reject(error);
     }
-})
+);
 
 export default agent;

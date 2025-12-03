@@ -5,7 +5,6 @@ import ApartmentCard from "./ApartmentCard"
 
 export default function ApartmentList() {
     const { apartments, isPending } = useApartments();
-
     if (!apartments || isPending) return <div>Laduje sie</div>
 
     return (

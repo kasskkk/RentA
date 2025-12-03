@@ -12,7 +12,7 @@ export const useApartments = (id?: string) => {
             const response = await agent.get<Apartment[]>('/apartments');
             return response.data;
         },
-        enabled: !!id && location.pathname === '/apartments'
+        enabled: location.pathname === '/apartments'
     });
 
     const { data: apartment, isPending: isPendingApartment } = useQuery({
