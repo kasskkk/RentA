@@ -11,7 +11,7 @@ type Apartment = {
     city: string
     street: string
     buildingNumber: string
-    apartmentNumber: number | null
+    apartmentNumber: string
     latitude: number
     longitude: number
 }
