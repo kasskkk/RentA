@@ -2,7 +2,6 @@ import { useController, type UseControllerProps, type FieldValues } from "react-
 
 type Props<T extends FieldValues> = {
     label: string;
-    defaultValue: string;
 } & UseControllerProps<T>;
 
 export default function TextInput<T extends FieldValues>(props: Props<T>) {

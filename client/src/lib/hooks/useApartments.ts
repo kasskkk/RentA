@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
+import type { Apartment } from "../types";
 
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();

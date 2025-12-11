@@ -1,20 +1,26 @@
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import { useApartments } from "../../../../lib/hooks/useApartments";
 import { useForm } from 'react-hook-form';
 import { useEffect } from "react";
-import { apartmentSchema, type ApartmentSchema } from "../../../../lib/schemas/apartmentSchema";
+import { apartmentSchema, type ApartmentSchema} from "../../../../lib/schemas/apartmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../../shared/components/TextInput";
 import LocationInput from "../../../shared/components/LocationInput";
+import NumberInput from "../../../shared/components/NumberInput";
+import type { Apartment } from "../../../../lib/types";
 
 export default function ApartmentForm() {
-    const { control, reset, handleSubmit } = useForm<ApartmentSchema>({
+    const { control, reset, handleSubmit } = useForm({
         mode: 'onTouched',
         resolver: zodResolver(apartmentSchema),
         defaultValues: {
             name: '',
             description: '',
-            price: 0,
+            pricePerMonth: 0,
+            isAvailable: false,
+            rooms: 0,
+            area: 0,
+            maxOccupants: 0,
             location: {
                 city: '',
                 street: '',
@@ -27,25 +33,58 @@ export default function ApartmentForm() {
     });
     const { id } = useParams();
     const { apartment } = useApartments(id);
+    const { updateApartment, createApartment } = useApartments();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (apartment) reset(apartment);
+        if (apartment) reset({
+            ...apartment,
+            location: {
+                city: apartment.city,
+                street: apartment.street,
+                latitude: apartment.latitude,
+                longitude: apartment.longitude,
+                buildingNumber: apartment.buildingNumber,
+                apartmentNumber: apartment.apartmentNumber,
+            }
+        });
     }, [apartment, reset]);
 
-    const onSubmit = (data: ApartmentSchema) => {
+    const onSubmit = async (data: ApartmentSchema) => {
+        const { location, ...rest } = data;
+        const flattenedData = { ...rest, ...location };
         console.log(data);
+        try {
+            if (apartment) {
+
+                updateApartment.mutate({ ...apartment, ...flattenedData }, {
+                    onSuccess: () => navigate(`/apartments/${apartment.id}`)
+                })
+            } else {
+                createApartment.mutate(
+                    flattenedData as Apartment,
+                    {
+                        onSuccess: (id) => navigate(`/apartments/${id}`)
+                    })
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div>
-                <TextInput<ApartmentSchema> label="Name" name="name" control={control} defaultValue="" />
-                <TextInput<ApartmentSchema> label="Description" name="description" control={control} defaultValue="" />
-                {/* <TextInput<ApartmentSchema> label="Price" name="price" control={control} defaultValue={0}/> */}
-                <LocationInput<ApartmentSchema> label="Location" control={control} name="location.city" />
+                <TextInput label="Name" name="name" control={control} defaultValue="" />
+                <TextInput label="Description" name="description" control={control} defaultValue="" />
+                <NumberInput label="Price" name="pricePerMonth" control={control} defaultValue={0} />
+                <NumberInput label="Rooms" name="rooms" control={control} defaultValue={0} />
+                <NumberInput label="Area" name="area" control={control} defaultValue={0} />
+                
+                <LocationInput label="Location" control={control} name="location" />
                 <div>
-                    <button className="btn">Cancel</button>
-                    <button className="btn">Submit</button>
+                    <button type="button" className="btn">Cancel</button>
+                    <button type="submit" className="btn">Submit</button>
                 </div>
             </div>
         </form>

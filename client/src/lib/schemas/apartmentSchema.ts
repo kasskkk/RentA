@@ -4,12 +4,19 @@ const requiredString = (fieldName: string) =>
     z.string().nonempty(`${fieldName} is required`)
 
 const requiredNumber = (fieldName: string) =>
-    z.number(`${fieldName} is required`)
+    z.number(`${fieldName} is required`).min(1, `${fieldName} must be at least 1`);
+
+const requiredBoolean = (fieldName: string) =>
+    z.boolean(`${fieldName} is required`)
 
 export const apartmentSchema = z.object({
     name: requiredString("Name"),
     description: requiredString("Description"),
-    price: requiredNumber("Price"),
+    pricePerMonth: requiredNumber("Price"),
+    isAvailable: requiredBoolean("IsAvailable"),
+    rooms: requiredNumber("Rooms"),
+    area: requiredNumber("Area"),
+    maxOccupants: requiredNumber("MaxOccupants"),
     location: z.object({
         city: requiredString("City"),
         street: requiredString("Street"),
