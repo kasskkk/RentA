@@ -1,4 +1,5 @@
 import { NavLink } from "react-router"
+import type { Apartment } from "../../../../lib/types"
 
 type Props = {
     apartment: Apartment
