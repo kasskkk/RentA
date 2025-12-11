@@ -1,5 +1,6 @@
 using System;
 using Application.Apartments.Commands;
+using Application.Apartments.DTOs;
 using Application.Apartments.Queries;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
@@ -17,28 +18,24 @@ public class ApartmentsController : BaseApiController
     [HttpGet("{id}")]
     public async Task<ActionResult<Apartment>> GetApartmentDetail(string id)
     {
-        return await Mediator.Send(new GetApartmentDetails.Query { Id = id });
+        return HandleResult(await Mediator.Send(new GetApartmentDetails.Query { Id = id }));
     }
 
     [HttpPost]
-    public async Task<ActionResult<string>> CreateApartment(Apartment apartment)
+    public async Task<ActionResult<string>> CreateApartment(CreateApartmentDto apartmentDto)
     {
-        return await Mediator.Send(new CreateApartment.Command { Apartment = apartment });
+        return HandleResult(await Mediator.Send(new CreateApartment.Command { ApartmentDto = apartmentDto }));
     }
 
     [HttpPut]
-    public async Task<ActionResult> EditApartment(Apartment apartment)
+    public async Task<ActionResult> EditApartment(EditApartmentDto apartmentDto)
     {
-        await Mediator.Send(new EditApartment.Command { Apartment = apartment });
-
-        return NoContent();
+        return HandleResult(await Mediator.Send(new EditApartment.Command { ApartmentDto = apartmentDto }));
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteApartment(string id)
     {
-        await Mediator.Send(new DeleteApartment.Command { Id = id });
-
-        return NoContent();
+        return HandleResult(await Mediator.Send(new DeleteApartment.Command { Id = id }));
     }
 }

@@ -1,19 +1,9 @@
-import axios from "axios";
-import { useEffect, useState } from "react"
 import NavBar from "./NavBar";
 import SideBar from "./SideBar";
-import ApartmentDashboard from "../features/apartments/dashboard/ApartmentDashboard";
+import { Outlet } from "react-router";
 
 function App() {
 
-  const [apartments, setApartmens] = useState<Apartment[]>([]);
-
-  useEffect(() => {
-    axios.get<Apartment[]>('https://localhost:5001/api/apartments')
-      .then(response => setApartmens(response.data))
-
-    return () => { }
-  }, [])
 
   return (
     <>
@@ -26,7 +16,7 @@ function App() {
           <div className="drawer-content">
             {/* Page content here */}
             <div className="p-4">
-              <ApartmentDashboard apartments={apartments} />
+              <Outlet />
             </div>
           </div>
           {/* Sidebar */}

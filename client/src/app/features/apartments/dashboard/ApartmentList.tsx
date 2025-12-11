@@ -1,15 +1,19 @@
+import { useApartments } from "../../../../lib/hooks/useApartments";
 import ApartmentCard from "./ApartmentCard"
 
-type Props = {
-    apartments: Apartment[]
-}
 
-export default function ApartmentList({ apartments }: Props) {
+
+export default function ApartmentList() {
+    const { apartments, isPending } = useApartments();
+    if (!apartments || isPending) return <div>Laduje sie</div>
+
     return (
-        <div className="grid grid-cols-3 gap-10">
-            {apartments.map(apartment => (
-                <ApartmentCard key={apartment.id} apartment={apartment}/>
-            ))}
-        </div>
+        <ul>
+            <div className="grid grid-cols-3 gap-10">
+                {apartments.map(apartment => (
+                    <ApartmentCard key={apartment.id} apartment={apartment} />
+                ))}
+            </div>
+        </ul>
     )
 }
