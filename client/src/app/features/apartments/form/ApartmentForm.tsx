@@ -1,10 +1,11 @@
-import { useNavigate, useParams } from "react-router"
+import { useParams } from "react-router"
 import { useApartments } from "../../../../lib/hooks/useApartments";
 import { useForm } from 'react-hook-form';
 import { useEffect } from "react";
 import { apartmentSchema, type ApartmentSchema } from "../../../../lib/schemas/apartmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../../shared/components/TextInput";
+import LocationInput from "../../../shared/components/LocationInput";
 
 export default function ApartmentForm() {
     const { control, reset, handleSubmit } = useForm<ApartmentSchema>({
@@ -13,16 +14,19 @@ export default function ApartmentForm() {
         defaultValues: {
             name: '',
             description: '',
-            city: '',
-            street: '',
             price: 0,
-            buildingNumber: '',
-            apartmentNumber: '',
+            location: {
+                city: '',
+                street: '',
+                buildingNumber: '',
+                apartmentNumber: '',
+                longitude: 0,
+                latitude: 0
+            }
         }
     });
     const { id } = useParams();
-    const { apartment, createApartment, updateApartment } = useApartments(id);
-    const navigate = useNavigate();
+    const { apartment } = useApartments(id);
 
     useEffect(() => {
         if (apartment) reset(apartment);
@@ -35,13 +39,10 @@ export default function ApartmentForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div>
-                <TextInput<ApartmentSchema> label="Name" name="name" control={control} defaultValue=""/>
-                <TextInput<ApartmentSchema> label="Description" name="description" control={control} defaultValue=""/>
+                <TextInput<ApartmentSchema> label="Name" name="name" control={control} defaultValue="" />
+                <TextInput<ApartmentSchema> label="Description" name="description" control={control} defaultValue="" />
                 {/* <TextInput<ApartmentSchema> label="Price" name="price" control={control} defaultValue={0}/> */}
-                <TextInput<ApartmentSchema> label="City" name="city" control={control} defaultValue=""/>
-                <TextInput<ApartmentSchema> label="Street" name="street" control={control} defaultValue=""/>
-                <TextInput<ApartmentSchema> label="Building number" name="buildingNumber" control={control} defaultValue=""/>
-                <TextInput<ApartmentSchema> label="Apartment number" name="apartmentNumber" control={control} defaultValue=""/>
+                <LocationInput<ApartmentSchema> label="Location" control={control} name="location.city" />
                 <div>
                     <button className="btn">Cancel</button>
                     <button className="btn">Submit</button>
