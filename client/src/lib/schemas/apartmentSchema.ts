@@ -4,7 +4,7 @@ const requiredString = (fieldName: string) =>
     z.string().nonempty(`${fieldName} is required`)
 
 const requiredNumber = (fieldName: string) =>
-    z.number(`${fieldName} is required`).min(1, `${fieldName} must be at least 1`);
+    z.number(`${fieldName} is required`)
 
 const requiredBoolean = (fieldName: string) =>
     z.boolean(`${fieldName} is required`)
