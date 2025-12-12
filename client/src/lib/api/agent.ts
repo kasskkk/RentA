@@ -3,7 +3,8 @@ import toast from "react-hot-toast";
 import { router } from "../../app/router/Routes";
 
 const agent = axios.create({
-    baseURL: import.meta.env.VITE_API_URL
+    baseURL: import.meta.env.VITE_API_URL,
+    withCredentials: true
 });
 
 const sleep = (delay: number) => {
@@ -41,7 +42,7 @@ agent.interceptors.response.use(
                 router.navigate('/not-found');
                 break;
             case 500:
-                router.navigate('/server-error', {state: {error: data}})
+                router.navigate('/server-error', { state: { error: data } })
                 break;
             default:
                 break;
