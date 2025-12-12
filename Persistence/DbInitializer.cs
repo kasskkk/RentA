@@ -1,18 +1,33 @@
 using System;
 using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace Persistence;
 
 public class DbInitializer
 {
-    public static async Task SeedData(AppDbContext context)
+    public static async Task SeedData(AppDbContext context, UserManager<User> userManager)
     {
+        if (!userManager.Users.Any())
+        {
+            var users = new List<User>
+            {
+                new() {DisplayName = "Bob", UserName = "bob@test.com", Email = "bob@test.com"},
+                new() {DisplayName = "Tom", UserName = "tom@test.com", Email = "tom@test.com"},
+                new() {DisplayName = "Jane", UserName = "jane@test.com", Email = "jane@test.com"},
+            };
+
+            foreach (var user in users)
+            {
+                await userManager.CreateAsync(user, "Pa$$w0rd");
+            }
+        }
+
         if (context.Apartments.Any()) return;
 
         var apartments = new List<Apartment>
         {
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Długa 10/5, Warszawa",
                 Description = "Przytulne mieszkanie w centrum",
@@ -28,8 +43,7 @@ public class DbInitializer
                 Latitude = 52.2297,
                 Longitude = 21.0122
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Kwiatowa 7, Kraków",
                 Description = "Słoneczne studio blisko rynku",
@@ -45,8 +59,7 @@ public class DbInitializer
                 Latitude = 50.0614,
                 Longitude = 19.9383
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Leśna 15/3, Wrocław",
                 Description = "Nowoczesne 2-pokojowe mieszkanie",
@@ -62,8 +75,7 @@ public class DbInitializer
                 Latitude = 51.1079,
                 Longitude = 17.0385
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Słoneczna 22, Gdańsk",
                 Description = "Mieszkanie z widokiem na morze",
@@ -79,8 +91,7 @@ public class DbInitializer
                 Latitude = 54.3520,
                 Longitude = 18.6466
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Polna 8/2, Poznań",
                 Description = "Kameralne mieszkanie w centrum",
@@ -96,8 +107,7 @@ public class DbInitializer
                 Latitude = 52.4064,
                 Longitude = 16.9252
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Cicha 12, Lublin",
                 Description = "Przytulne studio na spokojnej ulicy",
@@ -113,8 +123,7 @@ public class DbInitializer
                 Latitude = 51.2465,
                 Longitude = 22.5684
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Rynek 5/1, Toruń",
                 Description = "Mieszkanie blisko starówki",
@@ -130,8 +139,7 @@ public class DbInitializer
                 Latitude = 53.0138,
                 Longitude = 18.5984
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Wrzosowa 18, Katowice",
                 Description = "Przestronne mieszkanie w spokojnej dzielnicy",
@@ -147,8 +155,7 @@ public class DbInitializer
                 Latitude = 50.2649,
                 Longitude = 19.0238
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Ogrodowa 3/4, Szczecin",
                 Description = "Nowoczesne mieszkanie z balkonem",
@@ -164,8 +171,7 @@ public class DbInitializer
                 Latitude = 53.4285,
                 Longitude = 14.5528
             },
-            new Apartment
-            {
+            new() {
                 Date = DateTime.Now,
                 Name = "Mostowa 20, Bydgoszcz",
                 Description = "Komfortowe mieszkanie w centrum miasta",
