@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
-import type { Apartment } from "../types";
+import { useAccount } from "./useAccounts";
 
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();
     const location = useLocation();
+    const { currentUser } = useAccount();
 
     const { data: apartments, isPending } = useQuery({
         queryKey: ['apartments'],
@@ -14,6 +15,7 @@ export const useApartments = (id?: string) => {
             return response.data;
         },
         enabled: location.pathname === '/apartments'
+            && !!currentUser
     });
 
     const { data: apartment, isPending: isPendingApartment } = useQuery({
@@ -23,6 +25,7 @@ export const useApartments = (id?: string) => {
             return response.data
         },
         enabled: !!id
+            && !!currentUser
     })
 
     const createApartment = useMutation({

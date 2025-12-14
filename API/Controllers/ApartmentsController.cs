@@ -3,6 +3,7 @@ using Application.Apartments.Commands;
 using Application.Apartments.DTOs;
 using Application.Apartments.Queries;
 using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
