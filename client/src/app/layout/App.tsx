@@ -6,24 +6,25 @@ function App() {
 
 
   return (
-    <>
-      <div className="flex flex-col min-h-screen">
-        {/* Navbar */}
-        <NavBar />
-        {/* Drawer below navbar */}
-        <div className="drawer lg:drawer-open flex-1">
-          <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content">
-            {/* Page content here */}
-            <div className="p-4">
-              <Outlet />
-            </div>
+    <div className="flex flex-col h-screen overflow-hidden">
+
+      {/* Navbar */}
+      <NavBar />
+
+      <div className="drawer lg:drawer-open flex-1 overflow-hidden">
+        <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+
+        <div className="drawer-content flex flex-col h-full overflow-y-auto">
+          {/* Page content here */}
+          <div className="p-4">
+            <Outlet />
           </div>
-          {/* Sidebar */}
-          <SideBar />
         </div>
+
+        {/* Sidebar */}
+        <SideBar />
       </div>
-    </>
+    </div>
   )
 }
 
