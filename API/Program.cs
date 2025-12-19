@@ -62,8 +62,9 @@ try
 {
     var context = services.GetRequiredService<AppDbContext>();
     var userManager = services.GetRequiredService<UserManager<User>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     await context.Database.MigrateAsync();
-    await DbInitializer.SeedData(context, userManager);
+    await DbInitializer.SeedData(context, userManager, roleManager);
 }
 catch (Exception ex)
 {

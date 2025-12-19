@@ -1,13 +1,20 @@
 using System;
 using Domain;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Persistence;
 
 public class DbInitializer
 {
-    public static async Task SeedData(AppDbContext context, UserManager<User> userManager)
+    public static async Task SeedData(AppDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
     {
+        if (!await roleManager.RoleExistsAsync("Owner"))
+            await roleManager.CreateAsync(new IdentityRole("Owner"));
+
+        if (!await roleManager.RoleExistsAsync("Occupant"))
+            await roleManager.CreateAsync(new IdentityRole("Occupant"));
+
         if (!userManager.Users.Any())
         {
             var users = new List<User>
@@ -20,6 +27,18 @@ public class DbInitializer
             foreach (var user in users)
             {
                 await userManager.CreateAsync(user, "Pa$$w0rd");
+                await userManager.AddToRoleAsync(user, "Occupant");
+            }
+
+            var owners = new List<User>
+            {
+                new() {DisplayName = "Owner", UserName = "owner@test.com", Email = "owner@test.com"},
+            };
+
+            foreach (var owner in owners)
+            {
+                await userManager.CreateAsync(owner, "Pa$$w0rd");
+                await userManager.AddToRoleAsync(owner, "Owner");
             }
         }
 
