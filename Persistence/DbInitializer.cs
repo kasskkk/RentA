@@ -47,7 +47,7 @@ public class DbInitializer
         var apartments = new List<Apartment>
         {
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Długa 10/5, Warszawa",
                 Description = "Przytulne mieszkanie w centrum",
                 PricePerMonth = 3500m,
@@ -63,7 +63,7 @@ public class DbInitializer
                 Longitude = 21.0122
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Kwiatowa 7, Kraków",
                 Description = "Słoneczne studio blisko rynku",
                 PricePerMonth = 2500m,
@@ -79,7 +79,7 @@ public class DbInitializer
                 Longitude = 19.9383
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Leśna 15/3, Wrocław",
                 Description = "Nowoczesne 2-pokojowe mieszkanie",
                 PricePerMonth = 2800m,
@@ -95,7 +95,7 @@ public class DbInitializer
                 Longitude = 17.0385
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Słoneczna 22, Gdańsk",
                 Description = "Mieszkanie z widokiem na morze",
                 PricePerMonth = 4000m,
@@ -111,7 +111,7 @@ public class DbInitializer
                 Longitude = 18.6466
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Polna 8/2, Poznań",
                 Description = "Kameralne mieszkanie w centrum",
                 PricePerMonth = 3000m,
@@ -127,7 +127,7 @@ public class DbInitializer
                 Longitude = 16.9252
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Cicha 12, Lublin",
                 Description = "Przytulne studio na spokojnej ulicy",
                 PricePerMonth = 2200m,
@@ -143,7 +143,7 @@ public class DbInitializer
                 Longitude = 22.5684
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Rynek 5/1, Toruń",
                 Description = "Mieszkanie blisko starówki",
                 PricePerMonth = 2600m,
@@ -159,7 +159,7 @@ public class DbInitializer
                 Longitude = 18.5984
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Wrzosowa 18, Katowice",
                 Description = "Przestronne mieszkanie w spokojnej dzielnicy",
                 PricePerMonth = 3200m,
@@ -175,7 +175,7 @@ public class DbInitializer
                 Longitude = 19.0238
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Ogrodowa 3/4, Szczecin",
                 Description = "Nowoczesne mieszkanie z balkonem",
                 PricePerMonth = 2900m,
@@ -191,7 +191,7 @@ public class DbInitializer
                 Longitude = 14.5528
             },
             new() {
-                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
                 Name = "Mostowa 20, Bydgoszcz",
                 Description = "Komfortowe mieszkanie w centrum miasta",
                 PricePerMonth = 3100m,

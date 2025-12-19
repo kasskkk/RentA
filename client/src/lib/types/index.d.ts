@@ -1,6 +1,6 @@
 type Apartment = {
     id: string
-    date: string
+    createdAt: string
     name: string
     description: string
     pricePerMonth: number
@@ -15,7 +15,7 @@ type Apartment = {
     latitude: number
     longitude: number
 }
- type LocationIQSuggestion = {
+type LocationIQSuggestion = {
     place_id: string
     osm_id: string
     osm_type: string
@@ -31,7 +31,7 @@ type Apartment = {
     address: LocationIQAddress
 }
 
- type LocationIQAddress = {
+type LocationIQAddress = {
     name: string
     house_number: string
     road: string

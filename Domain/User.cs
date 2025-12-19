@@ -9,4 +9,5 @@ public class User : IdentityUser
     public string? LastName { get; set; }
     public string? DisplayName { get; set; }
     public string? ImageUrl { get; set; }
+    public ICollection<ApartmentMember> ApartmentMembers { get; set; } = [];
 }

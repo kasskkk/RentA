@@ -4,7 +4,6 @@ namespace Application.Apartments.DTOs;
 
 public class BaseApartmentDto
 {
-    public DateTime Date { get; set; }
     // creating NAME from server side
     public string Name { get; set; } = ""; // "Street+BuildingNumber+ApartmentNumber+City" 
     public string Description { get; set; } = "";
