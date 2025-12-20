@@ -2,12 +2,11 @@ import { useNavigate, useParams } from "react-router"
 import { useApartments } from "../../../../lib/hooks/useApartments";
 import { useForm } from 'react-hook-form';
 import { useEffect } from "react";
-import { apartmentSchema, type ApartmentSchema} from "../../../../lib/schemas/apartmentSchema";
+import { apartmentSchema, type ApartmentSchema } from "../../../../lib/schemas/apartmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../../shared/components/TextInput";
 import LocationInput from "../../../shared/components/LocationInput";
 import NumberInput from "../../../shared/components/NumberInput";
-import type { Apartment } from "../../../../lib/types";
 
 export default function ApartmentForm() {
     const { control, reset, handleSubmit } = useForm({
@@ -80,7 +79,7 @@ export default function ApartmentForm() {
                 <NumberInput label="Price" name="pricePerMonth" control={control} defaultValue={0} />
                 <NumberInput label="Rooms" name="rooms" control={control} defaultValue={0} />
                 <NumberInput label="Area" name="area" control={control} defaultValue={0} />
-                
+
                 <LocationInput label="Location" control={control} name="location" />
                 <div>
                     <button type="button" className="btn">Cancel</button>

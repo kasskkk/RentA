@@ -1,5 +1,6 @@
 using System;
 using Application.Apartments.DTOs;
+using Application.Profiles.DTOs;
 using AutoMapper;
 using Domain;
 
@@ -12,5 +13,8 @@ public class MappingProfiles : Profile
         CreateMap<Apartment, Apartment>();
         CreateMap<CreateApartmentDto, Apartment>();
         CreateMap<EditApartmentDto, Apartment>();
+        CreateMap<User, UserProfile>();
+        CreateMap<ApartmentMember, ApartmentMemberDto>();
+        CreateMap<Apartment, ApartmentDto>();
     }
 }
