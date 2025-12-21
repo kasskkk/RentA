@@ -1,5 +1,6 @@
 using System;
 using API.DTOs;
+using Application.Profiles.DTOs;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -55,12 +56,17 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
 
         if (user == null) return Unauthorized();
 
-        return Ok(new
+        var roles = await signInManager.UserManager.GetRolesAsync(user);
+
+        return Ok(new UserDto
         {
-            user.DisplayName,
-            user.Email,
-            user.Id,
-            user.ImageUrl
+            DisplayName = user.DisplayName,
+            Email = user.Email!,
+            Id = user.Id,
+            ImageUrl = user.ImageUrl,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            UserRole = roles.FirstOrDefault()!
         });
     }
 

@@ -10,27 +10,26 @@ import ServerError from "../features/errors/ServerError";
 import LoginForm from "../features/account/LoginForm";
 import RequireAuth from "./RequireAuth";
 import RegisterForm from "../features/account/RegisterForm";
+import RoleBasedLayout from "./RoleBasedLayout";
 
 export const router = createBrowserRouter([
     {
         element: <RequireAuth />,
-        children: [{
-            path: '/',
-            element: <App />,
-            children: [
-                { path: '', element: <HomePage /> },
-                { path: 'apartments', element: <ApartmentDashboard /> },
-                { path: 'apartments/:id', element: <ApartmentDetail /> },
-                { path: 'createApartment', element: <ApartmentForm /> },
-                { path: 'editApartment/:id', element: <ApartmentForm /> },
-                { path: 'errors', element: <TestErrors /> },
-                { path: 'server-error', element: <ServerError /> },
-            ]
-        }]
+        children: [
+            {
+                path: "/",
+                element: <RoleBasedLayout />,
+                children: [
+                    { path: "", element: <HomePage /> },
+                    { path: "apartments", element: <ApartmentDashboard /> },
+                    { path: "apartments/:id", element: <ApartmentDetail /> },
+                    { path: "createApartment", element: <ApartmentForm /> },
+                    { path: "editApartment/:id", element: <ApartmentForm /> },
+                ],
+            },
+        ],
     },
-    { path: '/login', element: <LoginForm /> },
-    { path: '/register', element: <RegisterForm /> },
-    { path: '/not-found', element: <NotFound /> },
-
-    { path: '*', element: <Navigate replace to="/not-found" /> },
+    { path: "/login", element: <LoginForm /> },
+    { path: "/register", element: <RegisterForm /> },
+    { path: "*", element: <Navigate replace to="/" /> },
 ])
