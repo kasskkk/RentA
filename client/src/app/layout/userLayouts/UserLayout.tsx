@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 import NavBar from "../NavBar";
 import SideBar from "../SideBar";
 
-export default function Test() {
+export default function UserLayout() {
     return (
         <div className="flex flex-col h-screen overflow-hidden">
 

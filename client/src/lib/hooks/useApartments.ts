@@ -64,6 +64,48 @@ export const useApartments = (id?: string) => {
         }
     })
 
+    const applyToApartment = useMutation({
+        mutationFn: async (id: string) => {
+            await agent.post(`/apartments/${id}/apply`);
+        },
+        // Optimistic update
+        onMutate: async (id: string) => {
+            await queryClient.cancelQueries({ queryKey: ['apartments', id] });
+
+            const prevApartment = queryClient.getQueryData<Apartment>(['apartments', id]);
+
+            queryClient.setQueryData<Apartment>(['apartments', id], oldApartment => {
+                if (!oldApartment || !currentUser) return oldApartment;
+
+                const isMember = oldApartment.apartmentMembers.some(
+                    m => m.userId === currentUser.id
+                );
+
+                if (isMember) return oldApartment;
+
+                return {
+                    ...oldApartment,
+                    apartmentMembers: [
+                        ...oldApartment.apartmentMembers,
+                        {
+                            userId: currentUser.id,
+                            user: currentUser,
+                            isOwner: false,
+                            memberStatus: 'Pending',
+                            apartmentId: oldApartment.id,
+                            createdAt: new Date().toISOString()
+                        }
+                    ]
+                };
+            });
+
+            return { prevApartment }; // na wypadek błędu
+        },
+        onSettled: async (id) => {
+            await queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
+
     return {
         apartments,
         isPending,
@@ -71,6 +113,7 @@ export const useApartments = (id?: string) => {
         createApartment,
         deleteApartment,
         apartment,
-        isPendingApartment
+        isPendingApartment,
+        applyToApartment
     }
 }

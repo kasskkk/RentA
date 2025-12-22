@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../../shared/components/TextInput";
 import LocationInput from "../../../shared/components/LocationInput";
 import NumberInput from "../../../shared/components/NumberInput";
+import type { Apartment } from "../../../../lib/types";
 
 export default function ApartmentForm() {
     const { control, reset, handleSubmit } = useForm({

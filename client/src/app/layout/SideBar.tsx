@@ -1,6 +1,9 @@
 import { NavLink } from "react-router";
+import { useAccount } from "../../lib/hooks/useAccounts";
 
 export default function SideBar() {
+    const { currentUser } = useAccount();
+    const isOwner = currentUser?.userRole === "Owner";
 
     return (
         <div className="drawer-side is-drawer-close:overflow-visible">
@@ -26,14 +29,17 @@ export default function SideBar() {
                         </NavLink>
                     </li>
 
-                    {/* List item */}
-                    <li>
-                        <NavLink to="/createApartment" className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Create Apartment" >
-                            {/* Settings icon */}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M8 12h8" /><path d="M12 8v8" /></svg>
-                            <span className="is-drawer-close:hidden block truncate">Create Apartment</span>
-                        </NavLink>
-                    </li>
+                    {isOwner && (
+
+                        /* List item */
+                        <li>
+                            <NavLink to="/createApartment" className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Create Apartment" >
+                                {/* Settings icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M8 12h8" /><path d="M12 8v8" /></svg>
+                                <span className="is-drawer-close:hidden block truncate">Create Apartment</span>
+                            </NavLink>
+                        </li>
+                    )}
 
                     {/* List item */}
                     <li>

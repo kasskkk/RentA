@@ -1,11 +1,15 @@
 import { NavLink } from "react-router"
 import type { Apartment } from "../../../../lib/types"
+import { useAccount } from "../../../../lib/hooks/useAccounts"
 
 type Props = {
     apartment: Apartment
 }
 
 export default function ApartmentCard({ apartment }: Props) {
+    const { currentUser } = useAccount();
+    const isOwner = currentUser?.userRole === "Owner";
+
     return (
         <div className="card bg-base-50 w-auto shadow-sm">
             <figure className="m-0">
@@ -19,7 +23,10 @@ export default function ApartmentCard({ apartment }: Props) {
                 <h2 className="card-title text-sm">{apartment.name}</h2>
                 <p className="text-xs">{apartment.description}</p>
                 <div className="card-actions justify-end">
+                    {isOwner && (
+
                     <NavLink to="/createApartment" className="btn btn-primary btn-sm">Edit</NavLink>
+                    )}
                     <NavLink to={`/apartments/${apartment.id}`} className="btn btn-primary btn-sm">Details</NavLink>
                 </div>
             </div>

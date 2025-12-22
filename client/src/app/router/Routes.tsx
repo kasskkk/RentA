@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate } from "react-router";
-import App from "../layout/App";
 import HomePage from "../features/home/HomePage";
 import ApartmentDashboard from "../features/apartments/dashboard/ApartmentDashboard";
 import ApartmentForm from "../features/apartments/form/ApartmentForm";
@@ -25,11 +24,14 @@ export const router = createBrowserRouter([
                     { path: "apartments/:id", element: <ApartmentDetail /> },
                     { path: "createApartment", element: <ApartmentForm /> },
                     { path: "editApartment/:id", element: <ApartmentForm /> },
+                    { path: 'errors', element: <TestErrors /> },
+                    { path: 'server-error', element: <ServerError /> },
                 ],
             },
         ],
     },
     { path: "/login", element: <LoginForm /> },
     { path: "/register", element: <RegisterForm /> },
+    { path: '/not-found', element: <NotFound /> },
     { path: "*", element: <Navigate replace to="/" /> },
 ])

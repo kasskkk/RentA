@@ -7,6 +7,7 @@ export default function RequireAuth() {
     if (loadingUserIfno) return <span className="loading loading-spinner loading-xl"></span>
 
     if (!currentUser) return <Navigate to="/login" replace />
+
     return (
         <Outlet />
     )

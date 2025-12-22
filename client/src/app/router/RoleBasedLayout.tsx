@@ -1,6 +1,6 @@
 import { useAccount } from "../../lib/hooks/useAccounts";
 import OwnerLayout from "../layout/OwnerLayout";
-import Test from "../layout/userLayouts/Test";
+import UserLayout from "../layout/userLayouts/UserLayout";
 
 export default function RoleBasedLayout() {
     const { currentUser, loadingUserIfno } = useAccount();
@@ -8,5 +8,5 @@ export default function RoleBasedLayout() {
     if (loadingUserIfno) return <div>Loading...</div>;
     if (!currentUser) return <div>Not logged in</div>;
 
-    return currentUser.userRole === "Owner" ? <OwnerLayout /> : <Test />;
+    return currentUser.userRole === "Owner" ? <OwnerLayout /> : <UserLayout />;
 }
