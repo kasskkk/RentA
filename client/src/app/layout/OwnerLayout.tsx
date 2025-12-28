@@ -14,7 +14,6 @@ export default function OwnerLayout() {
 
                 <div className="drawer-content flex flex-col h-full overflow-y-auto">
                     {/* Page content here */}
-                    <h1>ownerrrrrrrrrrr</h1>
                     <div className="p-4">
                         <Outlet />
                     </div>

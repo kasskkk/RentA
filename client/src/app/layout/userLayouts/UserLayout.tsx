@@ -13,7 +13,6 @@ export default function UserLayout() {
                 <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
                 <div className="drawer-content flex flex-col h-full overflow-y-auto">
                     {/* Page content here */}
-                    <h1>USSSSSSSSSSSSSSER</h1>
                     <div className="p-4">
                         <Outlet />
                     </div>

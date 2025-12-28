@@ -13,7 +13,16 @@ export default function ProfileAvatarCard({ profile }: Props) {
                 data-tip={profile.displayName}
             >
                 <div className="w-24 h-24 rounded-full bg-neutral text-neutral-content flex items-center justify-center hover:shadow-lg transition">
-                    <span className="text-3xl">{profile.displayName?.[0]?.toUpperCase()}</span>
+                    {profile?.imageUrl ? (
+                        <img
+                            src={profile.imageUrl}
+                            alt={profile.displayName ?? "Użytkownik"}
+                        />
+                    ) : (
+                        <div className="text-3xl">
+                            {profile?.displayName?.[0]?.toUpperCase() ?? "U"}
+                        </div>
+                    )}               
                 </div>
             </div>
         </NavLink>
