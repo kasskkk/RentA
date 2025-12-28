@@ -16,5 +16,6 @@ public class MappingProfiles : Profile
         CreateMap<User, UserProfile>();
         CreateMap<ApartmentMember, ApartmentMemberDto>();
         CreateMap<Apartment, ApartmentDto>();
+        CreateMap<User, UserProfile>();
     }
 }
