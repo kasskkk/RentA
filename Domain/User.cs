@@ -10,5 +10,4 @@ public class User : IdentityUser
     public string? DisplayName { get; set; }
     public string? ImageUrl { get; set; }
     public ICollection<ApartmentMember> ApartmentMembers { get; set; } = [];
-    public ICollection<Photo> Photos { get; set; } = [];
 }
