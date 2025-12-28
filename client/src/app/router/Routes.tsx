@@ -10,7 +10,6 @@ import LoginForm from "../features/account/LoginForm";
 import RequireAuth from "./RequireAuth";
 import RegisterForm from "../features/account/RegisterForm";
 import RoleBasedLayout from "./RoleBasedLayout";
-import ProfilePage from "../features/profiles/ProfilePage";
 
 export const router = createBrowserRouter([
     {
@@ -25,7 +24,6 @@ export const router = createBrowserRouter([
                     { path: "apartments/:id", element: <ApartmentDetail /> },
                     { path: "createApartment", element: <ApartmentForm /> },
                     { path: "editApartment/:id", element: <ApartmentForm /> },
-                    { path: "profiles/:id", element: <ProfilePage /> },
                     { path: 'errors', element: <TestErrors /> },
                     { path: 'server-error', element: <ServerError /> },
                 ],

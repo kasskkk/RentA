@@ -1,4 +1,3 @@
-import { NavLink } from "react-router";
 import { useAccount } from "../../lib/hooks/useAccounts"
 
 export default function NavBar() {
@@ -20,39 +19,28 @@ export default function NavBar() {
             <div className="ml-auto dropdown dropdown-end">
                 <div tabIndex={-1} role="button" className="btn bg-base-300">
                     <div className="avatar">
-                        <div className="w-10 h-10 rounded-full overflow-hidden">
-                            {currentUser?.imageUrl ? (
-                                <img
-                                    src={currentUser.imageUrl}
-                                    alt={currentUser.displayName ?? "Użytkownik"}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gray-300 font-semibold">
-                                    {currentUser?.displayName?.[0]?.toUpperCase() ?? "U"}
-                                </div>
-                            )}
+                        <div className="w-10 rounded-full">
+                            <img
+                                alt="Avatar"
+                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                            />
                         </div>
                     </div>
-
                     <span >{currentUser?.displayName}</span>
                 </div>
-                <ul className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                <ul
+                    tabIndex={-1}
+                    className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                     <li>
-                        <NavLink to={`profiles/${currentUser?.id}`}>
-                            <a className="justify-between">
-                                Profile
-                                <span className="badge">New</span>
-                            </a>
-                        </NavLink>
+                        <a className="justify-between">
+                            Profile
+                            <span className="badge">New</span>
+                        </a>
                     </li>
                     <li><a>Settings | Profile setting idk</a></li>
-                    <li>
-                        <button
-                            onClick={() => { logoutUser.mutate() }}
-                        >Logout
-                        </button>
-                    </li>
+                    <li><button
+                    onClick={() => {logoutUser.mutate()}}
+                    >Logout</button></li>
                 </ul>
             </div>
         </nav>
