@@ -76,3 +76,10 @@ type User = {
     userRole: string
 }
 
+type Photo = {
+    id: string
+    url: string
+    publicId: string
+    userId: string
+}
+

@@ -33,7 +33,7 @@ public class AddPhoto
                 UserId = user.Id
             };
 
-            user.ImageUrl ??= photo.Url;
+            user.ImageUrl = photo.Url;
 
             context.Photos.Add(photo);
 
