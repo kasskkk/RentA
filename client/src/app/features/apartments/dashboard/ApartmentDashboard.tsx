@@ -6,7 +6,6 @@ export default function ApartmentDashboard() {
     const { apartments, isPending } = useApartments();
 
     if (!apartments || isPending) return <div>Laduje sie</div>
-
     return (
         <>
             <ApartmentList />

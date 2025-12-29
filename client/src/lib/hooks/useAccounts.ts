@@ -4,6 +4,7 @@ import agent from "../api/agent"
 import { useNavigate } from "react-router";
 import type { RegisterSchema } from "../schemas/registerSchema";
 import toast from "react-hot-toast";
+import type { User } from "../types";
 
 export const useAccount = () => {
     const querClient = useQueryClient();
@@ -12,6 +13,9 @@ export const useAccount = () => {
     const loginUser = useMutation({
         mutationFn: async (creds: LoginSchema) => {
             await agent.post('/login?useCookies=true', creds);
+
+            const response = await agent.get<User>("/account/user-info");
+            return response.data;
         },
         onSuccess: async () => {
             await querClient.invalidateQueries({
@@ -49,9 +53,11 @@ export const useAccount = () => {
             const response = await agent.get<User>('/account/user-info');
             return response.data
         },
-        enabled: !querClient.getQueryData(['user']) 
-        && location.pathname !== '/login'
-        && location.pathname !== '/register'
+        enabled: 
+        // true
+        !querClient.getQueryData(['user'])
+            && location.pathname !== '/login'
+            && location.pathname !== '/register'
     })
 
     return {

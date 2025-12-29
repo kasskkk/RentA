@@ -1,6 +1,6 @@
 type Apartment = {
     id: string
-    date: string
+    createdAt: string
     name: string
     description: string
     pricePerMonth: number
@@ -14,8 +14,22 @@ type Apartment = {
     apartmentNumber?: string
     latitude: number
     longitude: number
+    apartmentMembers: ApartmentMember[]
 }
- type LocationIQSuggestion = {
+
+export type MemberStatus = 'Pending' | 'Accepted' | 'Rejected'
+
+export type ApartmentMember = {
+    userId: string
+    apartmentId: string
+    user: User
+    isOwner: boolean
+    memberStatus: MemberStatus
+    createdAt: string
+    acceptedAt?: string
+}
+
+type LocationIQSuggestion = {
     place_id: string
     osm_id: string
     osm_type: string
@@ -31,7 +45,7 @@ type Apartment = {
     address: LocationIQAddress
 }
 
- type LocationIQAddress = {
+type LocationIQAddress = {
     name: string
     house_number: string
     road: string
@@ -44,9 +58,21 @@ type Apartment = {
     country_code: string
 }
 
+type Profile = {
+    id: string
+    displayName: string
+    imageUrl?: string
+    firstName?: string
+    lastName?: string
+}
+
 type User = {
     id: string
     email: string
     displayName: string
+    firstName?: string
+    lastName?: string
     imageUrl?: string
+    userRole: string
 }
+

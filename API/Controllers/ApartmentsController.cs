@@ -11,13 +11,13 @@ namespace API.Controllers;
 public class ApartmentsController : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<List<Apartment>>> GetApartments()
+    public async Task<ActionResult<List<ApartmentDto>>> GetApartments()
     {
         return await Mediator.Send(new GetApartmentList.Query());
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Apartment>> GetApartmentDetail(string id)
+    public async Task<ActionResult<ApartmentDto>> GetApartmentDetail(string id)
     {
         return HandleResult(await Mediator.Send(new GetApartmentDetails.Query { Id = id }));
     }
@@ -28,15 +28,24 @@ public class ApartmentsController : BaseApiController
         return HandleResult(await Mediator.Send(new CreateApartment.Command { ApartmentDto = apartmentDto }));
     }
 
-    [HttpPut]
-    public async Task<ActionResult> EditApartment(EditApartmentDto apartmentDto)
+    [Authorize(Policy = "IsApartmentOwner")]
+    [HttpPut("{id}")]
+    public async Task<ActionResult> EditApartment(string id, EditApartmentDto apartmentDto)
     {
+        apartmentDto.Id = id;
         return HandleResult(await Mediator.Send(new EditApartment.Command { ApartmentDto = apartmentDto }));
     }
-
+    
+    [Authorize(Policy = "IsApartmentOwner")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteApartment(string id)
     {
         return HandleResult(await Mediator.Send(new DeleteApartment.Command { Id = id }));
+    }
+
+    [HttpPost("{id}/apply")]
+    public async Task<ActionResult> ApplyToApartment(string id)
+    {
+        return HandleResult(await Mediator.Send(new ApplyToApartment.Command { Id = id }));
     }
 }

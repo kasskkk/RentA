@@ -1,0 +1,34 @@
+using System;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using Persistence;
+
+namespace Infrastructure.Security;
+
+public class IsOwnerRequirement : IAuthorizationRequirement
+{
+
+}
+
+public class IsOwnerRequirementHandler(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor) : AuthorizationHandler<IsOwnerRequirement>
+{
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, IsOwnerRequirement requirement)
+    {
+        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null) return;
+
+        var httpContext = httpContextAccessor.HttpContext;
+
+        if (httpContext?.GetRouteValue("id") is not string apartmentId) return;
+
+        var member = await dbContext.ApartmentMembers.SingleOrDefaultAsync(x => x.UserId == userId && x.ApartmentId == apartmentId);
+
+        if (member == null) return;
+
+        if (member.IsOwner) context.Succeed(requirement);
+    }
+}

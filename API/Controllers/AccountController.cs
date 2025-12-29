@@ -1,5 +1,6 @@
 using System;
 using API.DTOs;
+using Application.Profiles.DTOs;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,8 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
     {
         var user = new User
         {
+            FirstName = registerDto.FirstName,
+            LastName = registerDto.LastName,
             UserName = registerDto.Email,
             Email = registerDto.Email,
             DisplayName = registerDto.DisplayName
@@ -22,7 +25,18 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
 
         var result = await signInManager.UserManager.CreateAsync(user, registerDto.Password);
 
-        if (result.Succeeded) return Ok();
+        if (result.Succeeded)
+        {
+            if (registerDto.IsOwner)
+                await signInManager.UserManager.AddToRoleAsync(user, "Owner");
+
+            else
+            {
+                await signInManager.UserManager.AddToRoleAsync(user, "Occupant");
+            }
+
+            return Ok();
+        }
 
         foreach (var error in result.Errors)
         {
@@ -42,12 +56,17 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
 
         if (user == null) return Unauthorized();
 
-        return Ok(new
+        var roles = await signInManager.UserManager.GetRolesAsync(user);
+
+        return Ok(new UserDto
         {
-            user.DisplayName,
-            user.Email,
-            user.Id,
-            user.ImageUrl
+            DisplayName = user.DisplayName,
+            Email = user.Email!,
+            Id = user.Id,
+            ImageUrl = user.ImageUrl,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            UserRole = roles.FirstOrDefault()!
         });
     }
 
