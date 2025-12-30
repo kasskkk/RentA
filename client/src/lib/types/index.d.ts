@@ -1,3 +1,8 @@
+type PagedList<T, TCursor> = {
+    items: T[],
+    nextCursor: TCursor
+}
+
 type Apartment = {
     id: string
     createdAt: string

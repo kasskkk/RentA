@@ -4,18 +4,18 @@ import SideBar from './SideBar'
 
 export default function OwnerLayout() {
     return (
-        <div className="flex flex-col h-screen overflow-hidden">
+        <div className="flex flex-col h-screen ">
 
             {/* Navbar */}
             <NavBar />
 
-            <div className="drawer lg:drawer-open flex-1 overflow-hidden">
+            <div className="drawer lg:drawer-open ">
                 <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
 
-                <div className="drawer-content flex flex-col h-full overflow-y-auto">
+                <div className="drawer-content flex flex-col overflow-y-auto">
                     {/* Page content here */}
                     <h1>ownerrrrrrrrrrr</h1>
-                    <div className="p-4">
+                    <div className="p-4 ">
                         <Outlet />
                     </div>
                 </div>

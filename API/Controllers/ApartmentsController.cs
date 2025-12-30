@@ -2,6 +2,7 @@ using System;
 using Application.Apartments.Commands;
 using Application.Apartments.DTOs;
 using Application.Apartments.Queries;
+using Application.Core;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +12,9 @@ namespace API.Controllers;
 public class ApartmentsController : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<List<ApartmentDto>>> GetApartments()
+    public async Task<ActionResult<PagedList<ApartmentDto, DateTime?>>> GetApartments(DateTime? cursor)
     {
-        return await Mediator.Send(new GetApartmentList.Query());
+        return HandleResult(await Mediator.Send(new GetApartmentList.Query { Cursor = cursor }));
     }
 
     [HttpGet("{id}")]
@@ -35,7 +36,7 @@ public class ApartmentsController : BaseApiController
         apartmentDto.Id = id;
         return HandleResult(await Mediator.Send(new EditApartment.Command { ApartmentDto = apartmentDto }));
     }
-    
+
     [Authorize(Policy = "IsApartmentOwner")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteApartment(string id)

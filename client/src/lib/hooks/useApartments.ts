@@ -1,23 +1,32 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
 import { useAccount } from "./useAccounts";
-import type { Apartment } from "../types";
+import type { PagedList, Apartment } from "../types";
 
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();
     const location = useLocation();
     const { currentUser } = useAccount();
 
-    const { data: apartments, isPending } = useQuery({
+    const { data: apartmentsGroups, isPending, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery<PagedList<Apartment, string>>({
         queryKey: ['apartments'],
-        queryFn: async () => {
-            const response = await agent.get<Apartment[]>('/apartments');
+        queryFn: async ({ pageParam = null }) => {
+            const response = await agent.get<PagedList<Apartment, string>>('/apartments', {
+                params: {
+                    cursor: pageParam,
+                    pageSize: 6
+                }
+            });
             return response.data;
         },
+        initialPageParam: null,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
         enabled: location.pathname === '/apartments'
             && !!currentUser
     });
+
+    const apartments = apartmentsGroups?.pages.flatMap(page => page.items) ?? [];
 
     const { data: apartment, isPending: isPendingApartment } = useQuery({
         queryKey: ['apartments', id],
@@ -43,7 +52,7 @@ export const useApartments = (id?: string) => {
 
     const updateApartment = useMutation({
         mutationFn: async (apartment: Apartment) => {
-            await agent.put('/apartments', apartment)
+            await agent.put(`/apartments/${apartment.id}`, apartment)
         },
         onSuccess: async () => {
             await queryClient.invalidateQueries({
@@ -108,6 +117,9 @@ export const useApartments = (id?: string) => {
 
     return {
         apartments,
+        isFetchingNextPage,
+        fetchNextPage,
+        hasNextPage,
         isPending,
         updateApartment,
         createApartment,

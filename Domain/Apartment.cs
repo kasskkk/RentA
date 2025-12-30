@@ -1,7 +1,9 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace Domain;
 
+[Index(nameof(CreatedAt))]
 public class Apartment
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
