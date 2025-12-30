@@ -12,10 +12,9 @@ interface ApartmentState {
     apartments: Apartment[];
     filters: ApartmentFilters;
     nextCursor: string | null;
-    
-    // Akcje synchronizujące stan
+
     setApartments: (data: { items: Apartment[], nextCursor: string | null }, append?: boolean) => void;
-    setFilter: (name: keyof ApartmentFilters, value: undefined) => void;
+    setFilter: <K extends keyof ApartmentFilters>(name: K, value: ApartmentFilters[K]) => void;
 }
 
 export const useApartmentStore = create<ApartmentState>((set) => ({
