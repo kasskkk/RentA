@@ -2,8 +2,11 @@ using API.Middleware;
 using Application.Apartments.Queries;
 using Application.Apartments.Validators;
 using Application.Core;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
+using Infrastructure.Photos;
+using Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -29,6 +32,9 @@ builder.Services.AddMediatR(x =>
     x.RegisterServicesFromAssemblyContaining<GetApartmentList.Handler>();
     x.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
+
+builder.Services.AddScoped<IUserAccessor, UserAccessor>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateApartmentValidator>();
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -38,6 +44,15 @@ builder.Services.AddIdentityApiEndpoints<User>(opt =>
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<AppDbContext>();
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("IsApartmentOwner", policy =>
+    {
+        policy.Requirements.Add(new IsOwnerRequirement());
+    });
+});
+builder.Services.AddTransient<IAuthorizationHandler, IsOwnerRequirementHandler>();
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
 var app = builder.Build();
 

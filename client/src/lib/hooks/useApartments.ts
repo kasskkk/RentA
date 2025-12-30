@@ -1,22 +1,39 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
 import { useAccount } from "./useAccounts";
+import type { PagedList, Apartment } from "../types";
+import { useApartmentStore } from "../stores/useApartmentStore";
 
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();
     const location = useLocation();
     const { currentUser } = useAccount();
+    const { filters } = useApartmentStore();
 
-    const { data: apartments, isPending } = useQuery({
-        queryKey: ['apartments'],
-        queryFn: async () => {
-            const response = await agent.get<Apartment[]>('/apartments');
+    const { data: apartmentsGroups, isPending, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery<PagedList<Apartment, string>>({
+        queryKey: ['apartments', filters],
+        queryFn: async ({ pageParam = null }) => {
+            const response = await agent.get<PagedList<Apartment, string>>('/apartments', {
+                params: {
+                    cursor: pageParam,
+                    pageSize: 6,
+                    keyWord: filters.keyWord,
+                    city: filters.city,
+                    pricePerMonth: filters.pricePerMonth,
+                    rooms: filters.rooms
+                }
+            });
             return response.data;
         },
+        initialPageParam: null,
+        placeholderData: keepPreviousData,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
         enabled: location.pathname === '/apartments'
             && !!currentUser
     });
+
+    const apartments = apartmentsGroups?.pages.flatMap(page => page.items) ?? [];
 
     const { data: apartment, isPending: isPendingApartment } = useQuery({
         queryKey: ['apartments', id],
@@ -42,7 +59,7 @@ export const useApartments = (id?: string) => {
 
     const updateApartment = useMutation({
         mutationFn: async (apartment: Apartment) => {
-            await agent.put('/apartments', apartment)
+            await agent.put(`/apartments/${apartment.id}`, apartment)
         },
         onSuccess: async () => {
             await queryClient.invalidateQueries({
@@ -63,13 +80,59 @@ export const useApartments = (id?: string) => {
         }
     })
 
+    const applyToApartment = useMutation({
+        mutationFn: async (id: string) => {
+            await agent.post(`/apartments/${id}/apply`);
+        },
+        // Optimistic update
+        onMutate: async (id: string) => {
+            await queryClient.cancelQueries({ queryKey: ['apartments', id] });
+
+            const prevApartment = queryClient.getQueryData<Apartment>(['apartments', id]);
+
+            queryClient.setQueryData<Apartment>(['apartments', id], oldApartment => {
+                if (!oldApartment || !currentUser) return oldApartment;
+
+                const isMember = oldApartment.apartmentMembers.some(
+                    m => m.userId === currentUser.id
+                );
+
+                if (isMember) return oldApartment;
+
+                return {
+                    ...oldApartment,
+                    apartmentMembers: [
+                        ...oldApartment.apartmentMembers,
+                        {
+                            userId: currentUser.id,
+                            user: currentUser,
+                            isOwner: false,
+                            memberStatus: 'Pending',
+                            apartmentId: oldApartment.id,
+                            createdAt: new Date().toISOString()
+                        }
+                    ]
+                };
+            });
+
+            return { prevApartment }; // na wypadek błędu
+        },
+        onSettled: async (id) => {
+            await queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
+
     return {
         apartments,
+        isFetchingNextPage,
+        fetchNextPage,
+        hasNextPage,
         isPending,
         updateApartment,
         createApartment,
         deleteApartment,
         apartment,
-        isPendingApartment
+        isPendingApartment,
+        applyToApartment
     }
 }
