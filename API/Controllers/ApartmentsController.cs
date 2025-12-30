@@ -12,9 +12,9 @@ namespace API.Controllers;
 public class ApartmentsController : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<PagedList<ApartmentDto, DateTime?>>> GetApartments(DateTime? cursor)
+    public async Task<ActionResult<PagedList<ApartmentDto, DateTime?>>> GetApartments([FromQuery] ApartmentParams apartmentParams)
     {
-        return HandleResult(await Mediator.Send(new GetApartmentList.Query { Cursor = cursor }));
+        return HandleResult(await Mediator.Send(new GetApartmentList.Query { Params = apartmentParams }));
     }
 
     [HttpGet("{id}")]

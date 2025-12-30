@@ -12,40 +12,52 @@ namespace Application.Apartments.Queries;
 
 public class GetApartmentList
 {
-    private const int MaxPageSize = 50;
     public class Query : IRequest<Result<PagedList<ApartmentDto, DateTime?>>>
     {
-        public DateTime? Cursor { get; set; }
-        private int _pageSize = 6;
-        public int PageSize
-        {
-            get => _pageSize;
-            set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
-        }
-
+        public required ApartmentParams Params { get; set; }
     }
     public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, Result<PagedList<ApartmentDto, DateTime?>>>
     {
         public async Task<Result<PagedList<ApartmentDto, DateTime?>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var query = context.Apartments
-                .OrderBy(x => x.CreatedAt)
-                .AsQueryable();
+            var query = context.Apartments.AsQueryable();
 
-            if (request.Cursor.HasValue)
+            if (request.Params.Cursor.HasValue)
             {
-                query = query.Where(x => x.CreatedAt >= request.Cursor.Value);
+                query = query.Where(x => x.CreatedAt > request.Params.Cursor.Value);
+            }
+            query = query.OrderBy(x => x.CreatedAt);
+
+            if (!string.IsNullOrEmpty(request.Params.KeyWord))
+            {
+                var key = request.Params.KeyWord.ToLower();
+                query = query.Where(x => x.Name.ToLower().Contains(key) || x.Description.ToLower().Contains(key));
+            }
+
+            if (!string.IsNullOrEmpty(request.Params.City))
+            {
+                query = query.Where(x => x.City == request.Params.City);
+            }
+
+            if (request.Params.PricePerMonth.HasValue)
+            {
+                query = query.Where(x => x.PricePerMonth <= request.Params.PricePerMonth.Value);
+            }
+
+            if (request.Params.Rooms.HasValue)
+            {
+                query = query.Where(x => x.Rooms == request.Params.Rooms.Value);
             }
 
             var apartments = await query
-                .Take(request.PageSize + 1)
                 .ProjectTo<ApartmentDto>(mapper.ConfigurationProvider)
+                .Take(request.Params.PageSize + 1)
                 .ToListAsync(cancellationToken);
 
             DateTime? nextCursor = null;
-            if (apartments.Count > request.PageSize)
+            if (apartments.Count > request.Params.PageSize)
             {
-                nextCursor = apartments.Last().CreatedAt;
+                nextCursor = apartments[request.Params.PageSize - 1].CreatedAt;
                 apartments.RemoveAt(apartments.Count - 1);
             }
 

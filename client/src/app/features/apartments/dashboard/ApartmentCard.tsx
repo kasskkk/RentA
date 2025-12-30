@@ -21,6 +21,7 @@ export default function ApartmentCard({ apartment }: Props) {
             </figure>
             <div className="card-body p-2">
                 <h2 className="card-title text-sm">{apartment.name}</h2>
+                <h2 className="card-title text-sm">{apartment.pricePerMonth} PLN </h2>
                 <p className="text-xs">{apartment.description}</p>
                 <div className="card-actions justify-end">
                     {isOwner && (

@@ -1,26 +1,33 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
 import { useAccount } from "./useAccounts";
 import type { PagedList, Apartment } from "../types";
+import { useApartmentStore } from "../stores/useApartmentStore";
 
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();
     const location = useLocation();
     const { currentUser } = useAccount();
+    const { filters } = useApartmentStore();
 
     const { data: apartmentsGroups, isPending, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery<PagedList<Apartment, string>>({
-        queryKey: ['apartments'],
+        queryKey: ['apartments', filters],
         queryFn: async ({ pageParam = null }) => {
             const response = await agent.get<PagedList<Apartment, string>>('/apartments', {
                 params: {
                     cursor: pageParam,
-                    pageSize: 6
+                    pageSize: 6,
+                    keyWord: filters.keyWord,
+                    city: filters.city,
+                    pricePerMonth: filters.pricePerMonth,
+                    rooms: filters.rooms
                 }
             });
             return response.data;
         },
         initialPageParam: null,
+        placeholderData: keepPreviousData,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         enabled: location.pathname === '/apartments'
             && !!currentUser

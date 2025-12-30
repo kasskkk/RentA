@@ -4,7 +4,7 @@ import SideBar from './SideBar'
 
 export default function OwnerLayout() {
     return (
-        <div className="flex flex-col h-screen ">
+        <div className="flex flex-col h-screen">
 
             {/* Navbar */}
             <NavBar />
@@ -14,7 +14,6 @@ export default function OwnerLayout() {
 
                 <div className="drawer-content flex flex-col overflow-y-auto">
                     {/* Page content here */}
-                    <h1>ownerrrrrrrrrrr</h1>
                     <div className="p-4 ">
                         <Outlet />
                     </div>
