@@ -43,7 +43,7 @@ export const useApartments = (id?: string) => {
 
     const updateApartment = useMutation({
         mutationFn: async (apartment: Apartment) => {
-            await agent.put('/apartments', apartment)
+           await agent.put(`/apartments/${apartment.id}`, apartment)
         },
         onSuccess: async () => {
             await queryClient.invalidateQueries({

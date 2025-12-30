@@ -20,5 +20,6 @@ public class Apartment
     public string? ApartmentNumber { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public ICollection<Device> Devices { get; set; } = [];
     public ICollection<ApartmentMember> ApartmentMembers { get; set; } = [];
 }

@@ -21,6 +21,7 @@ public class DbInitializer
         #region USERS
         if (!userManager.Users.Any())
         {
+            
             var owners = new List<User>
             {
                 new() { DisplayName = "Owner1", UserName = "owner1@test.com", Email = "owner1@test.com" },
@@ -68,13 +69,27 @@ public class DbInitializer
             var apartments = new List<Apartment>();
             var rnd = new Random();
 
+          
+            var availableDeviceDefinitions = new[]
+            {
+                new { Name = "Telewizor", Brand = "Samsung", Desc = "Smart TV 55 cali, 4K" },
+                new { Name = "Pralka", Brand = "Bosch", Desc = "Serie 6, ładowana od frontu" },
+                new { Name = "Lodówka", Brand = "LG", Desc = "No Frost" },
+                new { Name = "Zmywarka", Brand = "Siemens", Desc = "60cm" },
+                new { Name = "Klimatyzacja", Brand = "Gree", Desc = "Split 3.5kW" },
+                new { Name = "Ekspres do kawy", Brand = "DeLonghi", Desc = "Automatyczny" },
+                new { Name = "Odkurzacz", Brand = "Dyson", Desc = "Bezprzewodowy" },
+                new { Name = "Mikrofalówka", Brand = "Amica", Desc = "20L" }
+            };
+
             foreach (var owner in ownersList)
             {
+                
                 var fullApartment = new Apartment
                 {
                     CreatedAt = DateTime.Now,
                     Name = $"Full Apartment {owner.DisplayName}",
-                    Description = "Pełne mieszkanie z członkami",
+                    Description = "Pełne mieszkanie z adresem i urządzeniami",
                     PricePerMonth = rnd.Next(2000, 5000),
                     IsAvailable = true,
                     Rooms = rnd.Next(1, 4),
@@ -108,13 +123,22 @@ public class DbInitializer
                     });
                 }
 
+                
+                var randomDevices = availableDeviceDefinitions
+                    .OrderBy(_ => rnd.Next())
+                    .Take(rnd.Next(2, 5))
+                    .Select(d => new Device { Name = d.Name, Brand = d.Brand, Description = d.Desc });
+
+                foreach (var device in randomDevices) fullApartment.Devices.Add(device);
+
                 apartments.Add(fullApartment);
 
+              
                 var pendingApartment = new Apartment
                 {
                     CreatedAt = DateTime.Now,
                     Name = $"Pending Apartment {owner.DisplayName}",
-                    Description = "Mieszkanie oczekujące na zatwierdzenie",
+                    Description = "Mieszkanie oczekujące",
                     PricePerMonth = rnd.Next(2000, 5000),
                     IsAvailable = true,
                     Rooms = rnd.Next(1, 4),
@@ -148,12 +172,18 @@ public class DbInitializer
                     });
                 }
 
+                var randomPendingDevices = availableDeviceDefinitions
+                    .OrderBy(_ => rnd.Next())
+                    .Take(rnd.Next(1, 3))
+                    .Select(d => new Device { Name = d.Name, Brand = d.Brand, Description = d.Desc });
+
+                foreach (var device in randomPendingDevices) pendingApartment.Devices.Add(device);
+
                 apartments.Add(pendingApartment);
             }
 
             context.Apartments.AddRange(apartments);
         }
-        ;
         #endregion
 
         await context.SaveChangesAsync();

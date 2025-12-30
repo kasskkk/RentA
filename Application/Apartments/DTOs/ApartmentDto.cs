@@ -22,5 +22,6 @@ public class ApartmentDto
     public string? ApartmentNumber { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public ICollection<DeviceDto> Devices { get; set; } = [];
     public ICollection<ApartmentMemberDto> ApartmentMembers { get; set; } = [];
 }

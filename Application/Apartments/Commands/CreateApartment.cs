@@ -16,6 +16,7 @@ public class CreateApartment
     public class Command : IRequest<Result<string>>
     {
         public required CreateApartmentDto ApartmentDto { get; set; }
+
         public class Handler(AppDbContext context, IMapper mapper, IUserAccessor userAccessor) : IRequestHandler<Command, Result<string>>
         {
             public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
@@ -23,6 +24,18 @@ public class CreateApartment
                 var user = await userAccessor.GetUserAsync();
 
                 var apartment = mapper.Map<Apartment>(request.ApartmentDto);
+
+                
+                foreach (var device in apartment.Devices)
+                {
+                    device.Id = Guid.NewGuid().ToString();
+                }
+
+                
+                if (string.IsNullOrEmpty(apartment.Id))
+                {
+                    apartment.Id = Guid.NewGuid().ToString();
+                }
 
                 context.Apartments.Add(apartment);
 

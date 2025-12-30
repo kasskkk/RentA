@@ -1,3 +1,12 @@
+
+export type Device = {
+    id?: string; 
+    name: string;
+    brand: string;
+    description?: string; 
+}
+
+
 type Apartment = {
     id: string
     createdAt: string
@@ -14,7 +23,9 @@ type Apartment = {
     apartmentNumber?: string
     latitude: number
     longitude: number
+    
     apartmentMembers: ApartmentMember[]
+    devices: Device[] 
 }
 
 export type MemberStatus = 'Pending' | 'Accepted' | 'Rejected'
@@ -75,4 +86,3 @@ type User = {
     imageUrl?: string
     userRole: string
 }
-
