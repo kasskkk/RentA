@@ -47,14 +47,11 @@ export default function LocationInput<T extends FieldValues>({ label, ...props }
     };
 
     const handleSelect = (location: LocationIQSuggestion) => {
-        const city = location.address.city || "";
-        const street = location.address.road;
-        const buildingNumber = location.address.house_number || "";
         const latitude = parseFloat(location.lat);
         const longitude = parseFloat(location.lon);
 
         setInputValue(location.display_name);
-        field.onChange({ city, buildingNumber, latitude, longitude, street });
+        field.onChange({ latitude, longitude });
         setSuggestions([]);
     };
 

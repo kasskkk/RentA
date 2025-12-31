@@ -17,11 +17,11 @@ export const apartmentSchema = z.object({
     rooms: requiredNumber("Rooms"),
     area: requiredNumber("Area"),
     maxOccupants: requiredNumber("MaxOccupants"),
+    city: requiredString("City"),
+    street: requiredString("Street"),
+    buildingNumber: requiredString("Building number"),
+    apartmentNumber: z.string().optional(),
     location: z.object({
-        city: requiredString("City"),
-        street: requiredString("Street"),
-        buildingNumber: requiredString("Building number"),
-        apartmentNumber: z.string().optional(),
         latitude: z.number().refine(v => !isNaN(v), "Latitude must be a number"),
         longitude: z.number().refine(v => !isNaN(v), "Longitude must be a number"),
     })

@@ -59,15 +59,18 @@ export const useApartments = (id?: string) => {
 
     const updateApartment = useMutation({
         mutationFn: async (apartment: Apartment) => {
-            await agent.put(`/apartments/${apartment.id}`, apartment)
+            const response = await agent.put(`/apartments/${apartment.id}`, apartment)
+            return response.data;
         },
-        onSuccess: async () => {
+        onSuccess: async (_, variables) => {
+            await queryClient.invalidateQueries({
+                queryKey: ['apartments', variables.id]
+            });
             await queryClient.invalidateQueries({
                 queryKey: ['apartments']
-            })
+            });
         }
     })
-
 
     const deleteApartment = useMutation({
         mutationFn: async (id: string) => {
@@ -84,7 +87,6 @@ export const useApartments = (id?: string) => {
         mutationFn: async (id: string) => {
             await agent.post(`/apartments/${id}/apply`);
         },
-        // Optimistic update
         onMutate: async (id: string) => {
             await queryClient.cancelQueries({ queryKey: ['apartments', id] });
 
@@ -115,7 +117,7 @@ export const useApartments = (id?: string) => {
                 };
             });
 
-            return { prevApartment }; // na wypadek błędu
+            return { prevApartment };
         },
         onSettled: async (id) => {
             await queryClient.invalidateQueries({ queryKey: ['apartments', id] });

@@ -21,11 +21,11 @@ export default function ApartmentForm() {
             rooms: 0,
             area: 0,
             maxOccupants: 0,
+            city: '',
+            street: '',
+            buildingNumber: '',
+            apartmentNumber: '',
             location: {
-                city: '',
-                street: '',
-                buildingNumber: '',
-                apartmentNumber: '',
                 longitude: 0,
                 latitude: 0
             }
@@ -40,12 +40,8 @@ export default function ApartmentForm() {
         if (apartment) reset({
             ...apartment,
             location: {
-                city: apartment.city,
-                street: apartment.street,
                 latitude: apartment.latitude,
                 longitude: apartment.longitude,
-                buildingNumber: apartment.buildingNumber,
-                apartmentNumber: apartment.apartmentNumber,
             }
         });
     }, [apartment, reset]);
@@ -80,6 +76,10 @@ export default function ApartmentForm() {
                 <NumberInput label="Price" name="pricePerMonth" control={control} defaultValue={0} />
                 <NumberInput label="Rooms" name="rooms" control={control} defaultValue={0} />
                 <NumberInput label="Area" name="area" control={control} defaultValue={0} />
+                <TextInput label="City" name="city" control={control} defaultValue="" />
+                <TextInput label="Street" name="street" control={control} defaultValue="" />
+                <TextInput label="Building number" name="buildingNumber" control={control} defaultValue="" />
+                <TextInput label="Apartment number" name="apartmentNumber" control={control} defaultValue="" />
 
                 <LocationInput label="Location" control={control} name="location" />
                 <div>

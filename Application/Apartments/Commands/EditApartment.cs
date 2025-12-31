@@ -26,9 +26,9 @@ public class EditApartment
 
             mapper.Map(request.ApartmentDto, apartment);
 
-            var result = await context.SaveChangesAsync(cancellationToken) > 0;
+            await context.SaveChangesAsync(cancellationToken);
 
-            if (!result) return Result<Unit>.Failure("Failed to edit the apartment", 404);
+            // if (!result) return Result<Unit>.Failure("Failed to edit the apartment", 404);
 
             return Result<Unit>.Success(Unit.Value);
         }
