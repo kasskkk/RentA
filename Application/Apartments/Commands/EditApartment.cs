@@ -36,7 +36,6 @@ public class EditApartment
                     apartment.Devices.Add(new Device
                     {
                         Name = deviceDto.Name,
-                        Brand = deviceDto.Brand,
                         Description = deviceDto.Description
                     });
                 }

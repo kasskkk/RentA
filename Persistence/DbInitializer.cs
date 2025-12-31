@@ -21,7 +21,6 @@ public class DbInitializer
         #region USERS
         if (!userManager.Users.Any())
         {
-            
             var owners = new List<User>
             {
                 new() { FirstName = "Adam", LastName = "Właścicielski", DisplayName = "Owner1", UserName = "owner1@test.com", Email = "owner1@test.com", PhoneNumber = "111222333" },
@@ -69,39 +68,53 @@ public class DbInitializer
             var apartments = new List<Apartment>();
             var rnd = new Random();
 
-          
-            var availableDeviceDefinitions = new[]
+
+            var appliancesDefinitions = new[]
             {
-                new { Name = "Telewizor", Brand = "Samsung", Desc = "Smart TV 55 cali, 4K" },
-                new { Name = "Pralka", Brand = "Bosch", Desc = "Serie 6, ładowana od frontu" },
-                new { Name = "Lodówka", Brand = "LG", Desc = "No Frost" },
-                new { Name = "Zmywarka", Brand = "Siemens", Desc = "60cm" },
-                new { Name = "Klimatyzacja", Brand = "Gree", Desc = "Split 3.5kW" },
-                new { Name = "Ekspres do kawy", Brand = "DeLonghi", Desc = "Automatyczny" },
-                new { Name = "Odkurzacz", Brand = "Dyson", Desc = "Bezprzewodowy" },
-                new { Name = "Mikrofalówka", Brand = "Amica", Desc = "20L" }
+                new { Name = "Telewizor", Desc = "Smart TV 55 cali, 4K" },
+                new { Name = "Pralka", Desc = "Ładowana od frontu, klasa A+++" },
+                new { Name = "Lodówka", Desc = "No Frost z kostkarką" },
+                new { Name = "Zmywarka", Desc = "Zabudowana, 60cm" },
+                new { Name = "Klimatyzacja", Desc = "Split 3.5kW w salonie" },
+                new { Name = "Mikrofalówka", Desc = "20L z grillem" },
+                new { Name = "Żelazko", Desc = "Parowe ze stacją" },
+                new { Name = "Suszarka do włosów", Desc = "Jonizacja" }
+            };
+
+
+            var amenitiesDefinitions = new[]
+            {
+                new { Name = "Internet (WiFi)", Desc = "Światłowód 1Gb/s" },
+                new { Name = "Balkon / Taras", Desc = "15m2 z widokiem" },
+                new { Name = "Garaż / Parking", Desc = "Miejsce w hali garażowej" },
+                new { Name = "Winda", Desc = "Cichobieżna" },
+                new { Name = "Ogród", Desc = "Dostęp do ogrodu wspólnego" },
+                new { Name = "Basen", Desc = "W strefie mieszkańca" },
+                new { Name = "Siłownia", Desc = "Dostępna 24/7" },
+                new { Name = "Recepcja / Ochrona", Desc = "Monitoring i portier" }
             };
 
             foreach (var owner in ownersList)
             {
-                
+
                 var fullApartment = new Apartment
                 {
                     CreatedAt = DateTime.Now,
-                    Name = $"Full Apartment {owner.DisplayName}",
-                    Description = "Pełne mieszkanie z adresem i urządzeniami",
+                    Name = $"Apartament {owner.DisplayName}",
+                    Description = "Nowoczesne mieszkanie w centrum, w pełni wyposażone, gotowe do zamieszkania od zaraz.",
                     PricePerMonth = rnd.Next(2000, 5000),
                     IsAvailable = true,
-                    Rooms = rnd.Next(1, 4),
-                    Area = rnd.Next(30, 80),
-                    MaxOccupants = 4,
-                    City = "City" + rnd.Next(1, 6),
-                    Street = "Street" + rnd.Next(1, 20),
+                    Rooms = rnd.Next(2, 5),
+                    Area = rnd.Next(35, 90),
+                    MaxOccupants = rnd.Next(2, 6),
+                    City = "Poznań", // Przykładowe miasto
+                    Street = "Polna",
                     BuildingNumber = rnd.Next(1, 50).ToString(),
-                    ApartmentNumber = rnd.Next(1, 20).ToString(),
-                    Latitude = 50 + rnd.NextDouble() * 5,
-                    Longitude = 19 + rnd.NextDouble() * 5
+                    ApartmentNumber = rnd.Next(1, 100).ToString(),
+                    Latitude = 52.4064 + (rnd.NextDouble() - 0.5) * 0.1, // Okolice Poznania
+                    Longitude = 16.9252 + (rnd.NextDouble() - 0.5) * 0.1
                 };
+
 
                 fullApartment.ApartmentMembers.Add(new ApartmentMember
                 {
@@ -111,7 +124,8 @@ public class DbInitializer
                     MemberStatus = MemberStatus.Accepted
                 });
 
-                var members = occupantsList.OrderBy(_ => rnd.Next()).Take(fullApartment.MaxOccupants - 1).ToList();
+
+                var members = occupantsList.OrderBy(_ => rnd.Next()).Take(rnd.Next(0, fullApartment.MaxOccupants)).ToList();
                 foreach (var member in members)
                 {
                     fullApartment.ApartmentMembers.Add(new ApartmentMember
@@ -123,33 +137,40 @@ public class DbInitializer
                     });
                 }
 
-                
-                var randomDevices = availableDeviceDefinitions
-                    .OrderBy(_ => rnd.Next())
-                    .Take(rnd.Next(2, 5))
-                    .Select(d => new Device { Name = d.Name, Brand = d.Brand, Description = d.Desc });
 
-                foreach (var device in randomDevices) fullApartment.Devices.Add(device);
+                var selectedAppliances = appliancesDefinitions.OrderBy(_ => rnd.Next()).Take(rnd.Next(2, 6));
+                foreach (var item in selectedAppliances)
+                {
+                    fullApartment.Devices.Add(new Device { Name = item.Name, Description = item.Desc });
+                }
+
+
+                var selectedAmenities = amenitiesDefinitions.OrderBy(_ => rnd.Next()).Take(rnd.Next(2, 6));
+                foreach (var item in selectedAmenities)
+                {
+                    fullApartment.Devices.Add(new Device { Name = item.Name, Description = item.Desc });
+                }
 
                 apartments.Add(fullApartment);
 
-              
+
+
                 var pendingApartment = new Apartment
                 {
                     CreatedAt = DateTime.Now,
-                    Name = $"Pending Apartment {owner.DisplayName}",
-                    Description = "Mieszkanie oczekujące",
-                    PricePerMonth = rnd.Next(2000, 5000),
+                    Name = $"Oczekujące {owner.DisplayName}",
+                    Description = "Mieszkanie w trakcie weryfikacji.",
+                    PricePerMonth = rnd.Next(1500, 3000),
                     IsAvailable = true,
-                    Rooms = rnd.Next(1, 4),
-                    Area = rnd.Next(30, 80),
-                    MaxOccupants = 4,
-                    City = "City" + rnd.Next(1, 6),
-                    Street = "Street" + rnd.Next(1, 20),
-                    BuildingNumber = rnd.Next(1, 50).ToString(),
-                    ApartmentNumber = rnd.Next(1, 20).ToString(),
-                    Latitude = 50 + rnd.NextDouble() * 5,
-                    Longitude = 19 + rnd.NextDouble() * 5
+                    Rooms = 2,
+                    Area = 45,
+                    MaxOccupants = 2,
+                    City = "Warszawa",
+                    Street = "Złota",
+                    BuildingNumber = rnd.Next(1, 10).ToString(),
+                    ApartmentNumber = rnd.Next(1, 50).ToString(),
+                    Latitude = 52.2297 + (rnd.NextDouble() - 0.5) * 0.05,
+                    Longitude = 21.0122 + (rnd.NextDouble() - 0.5) * 0.05
                 };
 
                 pendingApartment.ApartmentMembers.Add(new ApartmentMember
@@ -159,6 +180,7 @@ public class DbInitializer
                     IsOwner = true,
                     MemberStatus = MemberStatus.Accepted
                 });
+
 
                 if (occupantsList.Count > 0)
                 {
@@ -172,12 +194,9 @@ public class DbInitializer
                     });
                 }
 
-                var randomPendingDevices = availableDeviceDefinitions
-                    .OrderBy(_ => rnd.Next())
-                    .Take(rnd.Next(1, 3))
-                    .Select(d => new Device { Name = d.Name, Brand = d.Brand, Description = d.Desc });
 
-                foreach (var device in randomPendingDevices) pendingApartment.Devices.Add(device);
+                pendingApartment.Devices.Add(new Device { Name = "Internet (WiFi)", Description = "Podstawowy" });
+                pendingApartment.Devices.Add(new Device { Name = "Lodówka", Description = "Stara" });
 
                 apartments.Add(pendingApartment);
             }
