@@ -47,27 +47,27 @@ export default function LocationInput<T extends FieldValues>({ label, ...props }
     };
 
     const handleSelect = (location: LocationIQSuggestion) => {
-        const city = location.address.city || "";
-        const street = location.address.road;
-        const buildingNumber = location.address.house_number || "";
         const latitude = parseFloat(location.lat);
         const longitude = parseFloat(location.lon);
 
         setInputValue(location.display_name);
-        field.onChange({ city, buildingNumber, latitude, longitude, street });
+        field.onChange({ latitude, longitude });
         setSuggestions([]);
     };
 
     useEffect(() => {
-        // If the field value is already an object, display its address in input
-        if (fieldState.error) {
-            console.log('Validation error:', fieldState.error);
+        if (field.value && typeof field.value === "object") {
+            // 1. Sprawdź czy to pełny obiekt Apartamentu (z miastem)
+            if ("city" in field.value) {
+                const val = field.value as Apartment;
+                setInputValue(`${val.city}${val.buildingNumber ? ` ${val.buildingNumber}` : ""}`);
+            }
+            // 2. Jeśli to tylko obiekt lokalizacji (lat/long) - używane przy edycji
+            else if ("latitude" in field.value && "longitude" in field.value) {
+                setInputValue(`${field.value.latitude.toFixed(4)}, ${field.value.longitude.toFixed(4)}`);
+            }
         }
-        if (field.value && typeof field.value === "object" && "city" in field.value) {
-            const val = field.value as Apartment;
-            setInputValue(`${val.city}${val.buildingNumber ? ` ${val.buildingNumber}` : ""}`);
-        }
-    }, [field.value, fieldState.error]);
+    }, [field.value]);
 
     return (
         <div className="relative flex flex-col gap-1 w-full max-w-xs">
@@ -78,7 +78,7 @@ export default function LocationInput<T extends FieldValues>({ label, ...props }
                 className={`input ${fieldState.error ? 'input-error' : ''} ${fieldState.error ? 'placeholder-red-500' : ''}`}
                 value={inputValue}
                 onChange={(e) => handleChange(e.target.value)}
-                placeholder="Type city or address..."
+                placeholder="Type city and street..."
                 ref={field.ref}
             />
 
