@@ -36,16 +36,27 @@ export default function ApartmentForm() {
     const { updateApartment, createApartment } = useApartments();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (apartment) reset({
-            ...apartment,
-            location: {
-                latitude: apartment.latitude,
-                longitude: apartment.longitude,
-            }
-        });
-    }, [apartment, reset]);
+    type ApartmentFormValues = ApartmentSchema & {
+        location: {
+            city?: string;
+            buildingNumber?: string;
+        }
+    };
 
+    useEffect(() => {
+        if (apartment) {
+            const formData: ApartmentFormValues = {
+                ...apartment,
+                location: {
+                    latitude: apartment.latitude,
+                    longitude: apartment.longitude,
+                    city: apartment.city,
+                    buildingNumber: apartment.buildingNumber
+                }
+            };
+            reset(formData);
+        }
+    }, [apartment, reset]);
     const onSubmit = async (data: ApartmentSchema) => {
         const { location, ...rest } = data;
         const flattenedData = { ...rest, ...location };
