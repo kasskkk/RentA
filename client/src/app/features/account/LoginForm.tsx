@@ -50,7 +50,7 @@ export default function LoginForm() {
                     Login
                 </button>
 
-                <NavLink to="/register" className="btn mt-2">Dont have account?</NavLink>
+                <NavLink to="/register" className="btn w-full mt-2">Dont have account?</NavLink>
             </form>
         </div>
     );
