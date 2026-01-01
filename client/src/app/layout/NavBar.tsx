@@ -29,19 +29,21 @@ export default function NavBar() {
             )}
 
             <div className="ml-auto dropdown dropdown-end">
-                <div tabIndex={-1} role="button" className="btn bg-base-300">
+                <div tabIndex={-1} role="button" className="btn bg-base-300 border-gray-250 border-2">
                     <div className="avatar">
-                        <div className="w-10 h-10 rounded-full overflow-hidden">
+                        <div className="w-9 h-9 rounded-full">
                             {currentUser?.imageUrl ? (
                                 <img
                                     src={currentUser.imageUrl}
-                                    alt={currentUser.displayName ?? "Użytkownik"}
+                                    alt={currentUser.displayName?.[0]}
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gray-300 font-semibold">
-                                    {currentUser?.displayName?.[0]?.toUpperCase() ?? "U"}
-                                </div>
+                                <>
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-200 font-semibold">
+                                        {currentUser?.displayName?.[0]?.toUpperCase() ?? "U"}
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>
@@ -51,13 +53,12 @@ export default function NavBar() {
                     className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                     <li>
                         <NavLink to={`/profiles/${currentUser?.id}`}>
-                            <div className="justify-between">
+                            <div>
                                 Profile
-                                <span className="badge">New</span>
                             </div>
                         </NavLink>
                     </li>
-                    <li><a>Settings | Profile setting idk</a></li>
+                    {/* <li><a>Settings | Profile setting idk</a></li> */}
                     <li><button
                         onClick={() => { logoutUser.mutate() }}
                     >Logout</button></li>
