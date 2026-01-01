@@ -68,7 +68,6 @@ public class DbInitializer
             var apartments = new List<Apartment>();
             var rnd = new Random();
 
-
             var appliancesDefinitions = new[]
             {
                 new { Name = "Telewizor", Desc = "Smart TV 55 cali, 4K" },
@@ -80,7 +79,6 @@ public class DbInitializer
                 new { Name = "Żelazko", Desc = "Parowe ze stacją" },
                 new { Name = "Suszarka do włosów", Desc = "Jonizacja" }
             };
-
 
             var amenitiesDefinitions = new[]
             {
@@ -94,9 +92,18 @@ public class DbInitializer
                 new { Name = "Recepcja / Ochrona", Desc = "Monitoring i portier" }
             };
 
+            // Lista przykładowych usterek do losowania
+            var faultTitles = new[] {
+                "Dziwne dźwięki podczas pracy",
+                "Nie włącza się",
+                "Uszkodzony panel sterowania",
+                "Wyciek wody",
+                "Przegrzewa się",
+                "Błąd na wyświetlaczu"
+            };
+
             foreach (var owner in ownersList)
             {
-
                 var fullApartment = new Apartment
                 {
                     CreatedAt = DateTime.Now,
@@ -107,14 +114,13 @@ public class DbInitializer
                     Rooms = rnd.Next(2, 5),
                     Area = rnd.Next(35, 90),
                     MaxOccupants = rnd.Next(2, 6),
-                    City = "Poznań", // Przykładowe miasto
+                    City = "Poznań",
                     Street = "Polna",
                     BuildingNumber = rnd.Next(1, 50).ToString(),
                     ApartmentNumber = rnd.Next(1, 100).ToString(),
-                    Latitude = 52.4064 + (rnd.NextDouble() - 0.5) * 0.1, // Okolice Poznania
+                    Latitude = 52.4064 + (rnd.NextDouble() - 0.5) * 0.1,
                     Longitude = 16.9252 + (rnd.NextDouble() - 0.5) * 0.1
                 };
-
 
                 fullApartment.ApartmentMembers.Add(new ApartmentMember
                 {
@@ -123,7 +129,6 @@ public class DbInitializer
                     IsOwner = true,
                     MemberStatus = MemberStatus.Accepted
                 });
-
 
                 var members = occupantsList.OrderBy(_ => rnd.Next()).Take(rnd.Next(0, fullApartment.MaxOccupants)).ToList();
                 foreach (var member in members)
@@ -137,13 +142,28 @@ public class DbInitializer
                     });
                 }
 
-
+                // Dodawanie urządzeń z losowymi usterkami
                 var selectedAppliances = appliancesDefinitions.OrderBy(_ => rnd.Next()).Take(rnd.Next(2, 6));
                 foreach (var item in selectedAppliances)
                 {
-                    fullApartment.Devices.Add(new Device { Name = item.Name, Description = item.Desc });
-                }
+                    var device = new Device { Name = item.Name, Description = item.Desc };
 
+                    // 30% szans na usterkę w urządzeniu
+                    if (rnd.NextDouble() > 0.7)
+                    {
+                        var isResolved = rnd.Next(0, 2) == 1; // 50% szans, że usterka jest już naprawiona
+                        device.Faults.Add(new Fault
+                        {
+                            Title = faultTitles[rnd.Next(faultTitles.Length)],
+                            Description = "Zgłoszenie wygenerowane automatycznie podczas seedowania bazy danych.",
+                            DateReported = DateTime.Now.AddDays(-rnd.Next(1, 60)),
+                            IsResolved = isResolved,
+                            DateResolved = isResolved ? DateTime.Now.AddDays(-rnd.Next(1, 5)) : null
+                        });
+                    }
+
+                    fullApartment.Devices.Add(device);
+                }
 
                 var selectedAmenities = amenitiesDefinitions.OrderBy(_ => rnd.Next()).Take(rnd.Next(2, 6));
                 foreach (var item in selectedAmenities)
@@ -153,7 +173,7 @@ public class DbInitializer
 
                 apartments.Add(fullApartment);
 
-
+                // --- Mieszkanie oczekujące ---
 
                 var pendingApartment = new Apartment
                 {
@@ -181,7 +201,6 @@ public class DbInitializer
                     MemberStatus = MemberStatus.Accepted
                 });
 
-
                 if (occupantsList.Count > 0)
                 {
                     var applicant = occupantsList[rnd.Next(occupantsList.Count)];
@@ -194,9 +213,20 @@ public class DbInitializer
                     });
                 }
 
+                // Dodawanie urządzeń do pending apartment
+                var dev1 = new Device { Name = "Internet (WiFi)", Description = "Podstawowy" };
+                pendingApartment.Devices.Add(dev1);
 
-                pendingApartment.Devices.Add(new Device { Name = "Internet (WiFi)", Description = "Podstawowy" });
-                pendingApartment.Devices.Add(new Device { Name = "Lodówka", Description = "Stara" });
+                var dev2 = new Device { Name = "Lodówka", Description = "Stara" };
+                // Dodajmy jedną usterkę do lodówki w "oczekującym" mieszkaniu
+                dev2.Faults.Add(new Fault
+                {
+                    Title = "Głośna praca",
+                    Description = "Lodówka buczy w nocy.",
+                    DateReported = DateTime.Now.AddDays(-2),
+                    IsResolved = false
+                });
+                pendingApartment.Devices.Add(dev2);
 
                 apartments.Add(pendingApartment);
             }

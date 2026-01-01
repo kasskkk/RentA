@@ -6,6 +6,9 @@ import { useAccount } from "../../../../lib/hooks/useAccounts";
 import ApartmentSkeleton from "../../../shared/components/ApartmentSkeleton";
 import ApartmentMembersTable from "../../../shared/components/ApartmentMembersTable";
 import ProfileAvatarCard from "../../profiles/ProfileAvatarCard";
+import FaultList from "./FaultList";
+import type { Device, ApartmentMember } from "../../../../lib/types";
+import FaultCreateDialog from "./FaultCreateDialog";
 
 const APPLIANCES = [
     "Telewizor", "Lodówka", "Pralka", "Zmywarka",
@@ -19,34 +22,44 @@ const AMENITIES = [
 
 export default function ApartmentDetails() {
     const { id } = useParams();
-    const { apartment, isPendingApartment, applyToApartment } = useApartments(id);
+    const { apartment, isPendingApartment, applyToApartment, loadApartment } = useApartments(id);
     const [mapOpen, setMapOpen] = useState(false);
     const { currentUser } = useAccount();
-    const isOwner = currentUser?.userRole === "Owner";
+    
+    const [activeTab, setActiveTab] = useState<'details' | 'faults'>('details');
+    const [isFaultModalOpen, setFaultModalOpen] = useState(false);
+
+    const isOwner = currentUser?.userRole?.toLowerCase() === "owner";
 
     if (isPendingApartment) return <ApartmentSkeleton />;
     if (!apartment) return <div className="p-10 text-center">Nie znaleziono apartamentu.</div>;
 
-    // Filtrowanie urządzeń na kategorie
-    const appliances = apartment.devices.filter(d => APPLIANCES.includes(d.name));
-    const amenities = apartment.devices.filter(d => AMENITIES.includes(d.name));
-    const others = apartment.devices.filter(d => !APPLIANCES.includes(d.name) && !AMENITIES.includes(d.name));
+    const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) => 
+        acc + (device.faults?.filter(f => !f.isResolved).length || 0), 0) || 0;
 
-    const renderDeviceSection = (title: string, items: typeof apartment.devices, icon: React.ReactNode) => {
+    const appliances = apartment.devices.filter((d: Device) => APPLIANCES.includes(d.name));
+    const amenities = apartment.devices.filter((d: Device) => AMENITIES.includes(d.name));
+    const others = apartment.devices.filter((d: Device) => !APPLIANCES.includes(d.name) && !AMENITIES.includes(d.name));
+
+    const renderDeviceSection = (title: string, items: Device[], icon: React.ReactNode) => {
         if (items.length === 0) return null;
         return (
-            <div className="mb-8">
-                <h3 className="font-bold text-lg text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-2">
-                    {icon}
-                    {title}
+            <div className="mb-6">
+                <h3 className="font-bold text-md text-base-content mb-3 flex items-center gap-2 border-b border-base-200 pb-2">
+                    {icon} {title}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {items.map((device, index) => (
-                        <div key={device.id || index} className="p-4 rounded-xl bg-base-200/50 border border-base-300">
-                            <span className="font-bold text-sm block">{device.name}</span>
-                            <p className="text-xs text-base-content/60 mt-1">
-                                {device.description || <span className="italic opacity-50">Brak opisu</span>}
-                            </p>
+                        <div
+                            key={device.id || index}
+                            className="p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors duration-200 border border-base-200"
+                        >
+                            <span className="font-semibold text-sm text-base-content block">{device.name}</span>
+                            {device.description ? (
+                                <p className="text-xs text-base-content/70 mt-1">{device.description}</p>
+                            ) : (
+                                <p className="text-xs text-base-content/30 italic mt-1">Brak dodatkowego opisu</p>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -58,7 +71,7 @@ export default function ApartmentDetails() {
         <div className="max-w-7xl mx-auto p-4 lg:p-8">
             <div className="flex flex-col lg:flex-row gap-8">
 
-                {/* LEWA KOLUMNA: Sidebar / Info Główne */}
+                {/* LEWA KOLUMNA: Sidebar */}
                 <div className="w-full lg:w-96 space-y-6">
                     <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
                         <figure className="bg-primary/10 p-8">
@@ -68,9 +81,7 @@ export default function ApartmentDetails() {
                             </svg>
                         </figure>
                         <div className="card-body">
-                            <div className="flex justify-between items-end mb-2">
-                                <h1 className="card-title text-2xl font-bold">{apartment.name}</h1>
-                            </div>
+                            <h1 className="card-title text-2xl font-bold">{apartment.name}</h1>
                             <div className="badge badge-secondary badge-outline">{apartment.city}, {apartment.street}</div>
 
                             <div className="mt-4 p-4 bg-base-200 rounded-lg">
@@ -98,79 +109,102 @@ export default function ApartmentDetails() {
                         </div>
                     </div>
 
-                    {/* Mała Mapa w Sidebarze */}
                     <button className="btn btn-outline btn-block" onClick={() => setMapOpen(!mapOpen)}>
                         {mapOpen ? 'Ukryj mapę' : 'Pokaż na mapie'}
                     </button>
                     {mapOpen && (
                         <div className="h-64 rounded-xl overflow-hidden border border-base-300 shadow-inner">
-                            <MapComponent
-                                position={[apartment.latitude, apartment.longitude]}
-                                location={apartment.name}
-                            />
+                            <MapComponent position={[apartment.latitude, apartment.longitude]} location={apartment.name} />
                         </div>
                     )}
                 </div>
 
-                {/* PRAWA KOLUMNA: Szczegóły i Wyposażenie */}
-                <div className="flex-1 space-y-8">
-                    <section className="bg-base-100 p-6 rounded-2xl shadow-sm border border-base-300">
-                        <h2 className="text-xl font-bold mb-4">Opis nieruchomości</h2>
-                        <p className="text-base-content/80 leading-relaxed whitespace-pre-line">
-                            {apartment.description}
-                        </p>
-                    </section>
+                {/* PRAWA KOLUMNA: Treść główna z zakładkami */}
+                <div className="flex-1">
+                    <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
+                        <figure className="max-h-64 overflow-hidden">
+                            <img
+                                className="w-full object-cover"
+                                src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                                alt="Apartment" />
+                        </figure>
+                        
+                        <div className="card-body">
+                            {/* Taby */}
+                            <div role="tablist" className="tabs tabs-bordered">
+                                <button 
+                                    role="tab" 
+                                    className={`tab ${activeTab === 'details' ? 'tab-active' : ''}`} 
+                                    onClick={() => setActiveTab('details')}
+                                >
+                                    Szczegóły
+                                </button>
+                                <button 
+                                    role="tab" 
+                                    className={`tab ${activeTab === 'faults' ? 'tab-active' : ''}`} 
+                                    onClick={() => setActiveTab('faults')}
+                                >
+                                    Usterki
+                                    {activeFaultsCount > 0 && <span className="badge badge-error badge-xs ml-2 text-white">{activeFaultsCount}</span>}
+                                </button>
+                            </div>
 
-                    <section className="bg-base-100 p-6 rounded-2xl shadow-sm border border-base-300">
-                        {renderDeviceSection("Sprzęt i Urządzenia", appliances, (
-                            <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                        ))}
+                            {/* Treść zakładki Szczegóły */}
+                            {activeTab === 'details' && (
+                                <div className="mt-6 animate-fade-in space-y-8">
+                                    <div>
+                                        <h2 className="text-xl font-bold mb-2">Opis nieruchomości</h2>
+                                        <p className="text-base-content/80 leading-relaxed whitespace-pre-line">{apartment.description}</p>
+                                    </div>
 
-                        {renderDeviceSection("Udogodnienia", amenities, (
-                            <svg className="w-5 h-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                            </svg>
-                        ))}
+                                    <div className="pt-4 border-t border-base-200">
+                                        {renderDeviceSection("Sprzęt i Urządzenia", appliances, <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>)}
+                                        {renderDeviceSection("Udogodnienia", amenities, <svg className="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>)}
+                                        {renderDeviceSection("Pozostałe", others, <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>)}
+                                        {apartment.devices.length === 0 && <div className="alert bg-base-200 text-sm">Brak informacji o wyposażeniu.</div>}
+                                    </div>
 
-                        {renderDeviceSection("Pozostałe", others, (
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        ))}
+                                    {/* Mieszkańcy (Avatar Cards) */}
+                                    <div className="pt-6 border-t border-base-200">
+                                        <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">Mieszkańcy</h3>
+                                        <div className="flex flex-wrap gap-4">
+                                            {apartment.apartmentMembers?.map((memb: ApartmentMember) => (
+                                                <ProfileAvatarCard key={memb.user.id} profile={memb.user} />
+                                            ))}
+                                        </div>
+                                    </div>
 
-                        {apartment.devices.length === 0 && (
-                            <div className="alert bg-base-200">Brak szczegółowych informacji o wyposażeniu.</div>
-                        )}
-                    </section>
-
-                    {/* Sekcja dla Właściciela: Mieszkańcy i Tabela */}
-                    {isOwner && (
-                        <div className="space-y-8">
-                            <section className="bg-base-100 p-6 rounded-2xl shadow-sm border border-base-300">
-                                <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                                    <span className="w-2 h-6 bg-primary rounded-full"></span>
-                                    Aktualni mieszkańcy
-                                </h3>
-                                <div className="flex flex-wrap gap-4">
-                                    {apartment.apartmentMembers?.map(memb => (
-                                        <ProfileAvatarCard key={memb.user.id} profile={memb.user} />
-                                    ))}
-                                    {(!apartment.apartmentMembers || apartment.apartmentMembers.length === 0) && (
-                                        <p className="text-sm italic opacity-50">Brak przypisanych mieszkańców.</p>
+                                    {/* Tabela zarządzania (tylko dla właściciela) */}
+                                    {isOwner && (
+                                        <div className="pt-6 border-t border-base-200">
+                                            <h3 className="text-lg font-bold mb-4">Zarządzanie członkami</h3>
+                                            <div className="overflow-x-auto">
+                                                <ApartmentMembersTable apartment={apartment} />
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
-                            </section>
+                            )}
 
-                            <section className="bg-base-100 p-6 rounded-2xl shadow-xl border border-primary/20">
-                                <h3 className="text-lg font-bold mb-4">Zarządzanie członkami</h3>
-                                <div className="overflow-x-auto">
-                                    <ApartmentMembersTable apartment={apartment} />
+                            {/* Treść zakładki Usterki */}
+                            {activeTab === 'faults' && (
+                                <div className="mt-6 animate-fade-in">
+                                    <FaultList 
+                                        devices={apartment.devices} 
+                                        isOwner={isOwner} 
+                                        refresh={loadApartment}
+                                        onAddClick={() => setFaultModalOpen(true)} 
+                                    />
+                                    <FaultCreateDialog 
+                                        isOpen={isFaultModalOpen}
+                                        onClose={() => setFaultModalOpen(false)}
+                                        onSuccess={loadApartment}
+                                        devices={apartment.devices}
+                                    />
                                 </div>
-                            </section>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

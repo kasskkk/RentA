@@ -3,13 +3,23 @@ type PagedList<T, TCursor> = {
     nextCursor: TCursor
 }
 
+export type Fault = {
+    id: string;
+    title: string;
+    description: string;
+    dateReported: string;
+    isResolved: boolean;
+    dateResolved?: string;
+    deviceId: string;
+    deviceName?: string;
+}
 
 export type Device = {
     id?: string; 
     name: string;
-    description?: string; 
+    description?: string;
+    faults: Fault[]; 
 }
-
 
 type Apartment = {
     id: string
