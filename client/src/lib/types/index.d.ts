@@ -1,10 +1,22 @@
+// 👇 1. Dodaj definicję Usterki (Fault)
+export type Fault = {
+    id: string;
+    title: string;
+    description: string;
+    dateReported: string;
+    isResolved: boolean;
+    dateResolved?: string;
+    deviceId: string;
+    deviceName?: string;
+}
 
 export type Device = {
     id?: string; 
     name: string;
-    description?: string; 
+    description?: string;
+    // 👇 2. Dodaj pole faults do Device
+    faults: Fault[]; 
 }
-
 
 type Apartment = {
     id: string

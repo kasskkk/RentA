@@ -1,24 +1,29 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { LoginSchema } from "../schemas/loginSchema"
 import agent from "../api/agent"
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router"; // Dodałem useLocation
 import type { RegisterSchema } from "../schemas/registerSchema";
 import toast from "react-hot-toast";
-import type { User } from "../types";
 
 export const useAccount = () => {
-    const querClient = useQueryClient();
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const location = useLocation(); // Potrzebne do 'enabled' w useQuery
 
     const loginUser = useMutation({
         mutationFn: async (creds: LoginSchema) => {
-            await agent.post('/login?useCookies=true', creds);
-
-            const response = await agent.get<User>("/account/user-info");
-            return response.data;
+            // 👇 ZMIANA: Używamy metody z agenta
+            // Metoda login w agent.ts teraz robi POST na /login?useCookies=true
+            await agent.Account.login(creds); 
+            
+            // Pobieramy dane użytkownika
+            return await agent.Account.current();
         },
-        onSuccess: async () => {
-            await querClient.invalidateQueries({
+        onSuccess: async (user) => {
+            // Możemy od razu ustawić dane, żeby nie pobierać ich ponownie
+            queryClient.setQueryData(['user'], user);
+            
+            await queryClient.invalidateQueries({
                 queryKey: ['user']
             })
             await navigate('/')
@@ -27,11 +32,12 @@ export const useAccount = () => {
 
     const logoutUser = useMutation({
         mutationFn: async () => {
-            await agent.post('/account/logout')
+            // 👇 ZMIANA: Używamy nowej metody logout
+            await agent.Account.logout();
         },
         onSuccess: () => {
-            querClient.removeQueries({ queryKey: ['user'] })
-            querClient.removeQueries({ queryKey: ['apartments'] })
+            queryClient.removeQueries({ queryKey: ['user'] })
+            queryClient.removeQueries({ queryKey: ['apartments'] })
             navigate('/login')
         },
         onError: (err) => console.log('logout error', err)
@@ -39,7 +45,8 @@ export const useAccount = () => {
 
     const registerUser = useMutation({
         mutationFn: async (creds: RegisterSchema) => {
-            await agent.post('/account/register', creds)
+            // 👇 ZMIANA: Używamy metody z agenta
+            await agent.Account.register(creds);
         },
         onSuccess: () => {
             toast.success('Register successfull - lets log in');
@@ -50,12 +57,10 @@ export const useAccount = () => {
     const { data: currentUser, isLoading: loadingUserIfno } = useQuery({
         queryKey: ['user'],
         queryFn: async () => {
-            const response = await agent.get<User>('/account/user-info');
-            return response.data
+            // 👇 ZMIANA: Używamy metody z agenta
+            return await agent.Account.current();
         },
-        enabled: 
-        // true
-        !querClient.getQueryData(['user'])
+        enabled: !queryClient.getQueryData(['user'])
             && location.pathname !== '/login'
             && location.pathname !== '/register'
     })
