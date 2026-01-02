@@ -6,8 +6,8 @@ import { useAccount } from "../../../../lib/hooks/useAccounts";
 import ProfileAvatarCard from "../../profiles/ProfileAvatarCard";
 import FaultList from "./FaultList";
 import type { Device, ApartmentMember } from "../../../../lib/types";
-// 👇 1. IMPORTUJEMY MODAL
 import FaultCreateDialog from "./FaultCreateDialog";
+import ApartmentBills from "../bills/ApartmentBills";
 
 const APPLIANCES = [
     "Telewizor", "Lodówka", "Pralka", "Zmywarka",
@@ -25,19 +25,25 @@ export default function ApartmentDetails() {
     const [mapOpen, setMapOpen] = useState(false);
     const { currentUser } = useAccount();
     
-    const [activeTab, setActiveTab] = useState<'details' | 'faults'>('details');
+    // Stan aktywnej zakładki (w tym nowa zakładka 'bills')
+    const [activeTab, setActiveTab] = useState<'details' | 'faults' | 'bills'>('details');
     
-    // 👇 2. NOWY STAN: Czy modal zgłaszania jest otwarty?
+    // Stan modala zgłaszania usterek
     const [isFaultModalOpen, setFaultModalOpen] = useState(false);
 
+    // Sprawdzenie ról
     const isOwner = currentUser?.userRole?.toLowerCase() === "owner";
+    // Sprawdzenie czy użytkownik jest na liście mieszkańców (lokator)
+    const isMember = apartment?.apartmentMembers.some((m: ApartmentMember) => m.userId === currentUser?.id);
 
-    if (!apartment) return <div>nie ma</div>
-    if (isPendingApartment) return <div>ladddduje</div>
+    if (!apartment) return <div>Nie znaleziono apartamentu</div>
+    if (isPendingApartment) return <div>Ładowanie...</div>
 
+    // Licznik nierozwiązanych usterek
     const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) => 
         acc + (device.faults?.filter(f => !f.isResolved).length || 0), 0) || 0;
 
+    // Filtrowanie urządzeń do sekcji
     const appliances = apartment.devices.filter((d: Device) => APPLIANCES.includes(d.name));
     const amenities = apartment.devices.filter((d: Device) => AMENITIES.includes(d.name));
     const others = apartment.devices.filter((d: Device) => !APPLIANCES.includes(d.name) && !AMENITIES.includes(d.name));
@@ -97,8 +103,12 @@ export default function ApartmentDetails() {
                         Usterki
                         {activeFaultsCount > 0 && <span className="badge badge-error badge-xs ml-2 text-white">{activeFaultsCount}</span>}
                     </a>
+                    <a role="tab" className={`tab ${activeTab === 'bills' ? 'tab-active' : ''}`} onClick={() => setActiveTab('bills')}>
+                        Rachunki
+                    </a>
                 </div>
 
+                {/* ZAKŁADKA SZCZEGÓŁY */}
                 {activeTab === 'details' && (
                     <div className="animate-fade-in">
                         <p className="mt-4 text-base-content/80 leading-relaxed text-lg">{apartment.description}</p>
@@ -113,7 +123,9 @@ export default function ApartmentDetails() {
                             <button className="btn btn-outline btn-sm w-full md:w-auto self-start" onClick={() => setMapOpen(!mapOpen)}>{mapOpen ? 'Ukryj mapę' : 'Pokaż na mapie'}</button>
                             {mapOpen && <div className="rounded-lg overflow-hidden border border-base-300 h-96 w-full"><MapComponent position={[apartment.latitude, apartment.longitude]} location={apartment.name} /></div>}
                         </div>
-                        {isOwner && (
+                        
+                        {/* Wyświetlanie mieszkańców dla Właściciela ORAZ Członków (lokatorów) */}
+                        {(isOwner || isMember) && (
                             <div className="mt-8 pt-6 border-t border-base-300">
                                 <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">Mieszkańcy</h3>
                                 <div className="flex flex-wrap gap-4">
@@ -126,17 +138,15 @@ export default function ApartmentDetails() {
                     </div>
                 )}
 
+                {/* ZAKŁADKA USTERKI */}
                 {activeTab === 'faults' && (
                     <div className="animate-fade-in">
                         <FaultList 
                             devices={apartment.devices} 
                             isOwner={isOwner} 
                             refresh={loadApartment}
-                            // 👇 3. PODPINAMY OTWIERANIE MODALA
                             onAddClick={() => setFaultModalOpen(true)} 
                         />
-
-                        {/* 👇 4. RENDERUJEMY MODAL */}
                         <FaultCreateDialog 
                             isOpen={isFaultModalOpen}
                             onClose={() => setFaultModalOpen(false)}
@@ -146,9 +156,16 @@ export default function ApartmentDetails() {
                     </div>
                 )}
 
+                {/* ZAKŁADKA RACHUNKI */}
+                {activeTab === 'bills' && (
+                    <div className="animate-fade-in">
+                        <ApartmentBills isOwner={isOwner} />
+                    </div>
+                )}
+
                 <div className="card-actions justify-end mt-8 border-t border-base-200 pt-4">
                     <NavLink to="/apartments" className="btn btn-ghost">Wróć</NavLink>
-                    {!isOwner && (
+                    {!isOwner && !isMember && (
                         <button className="btn btn-primary px-8" disabled={applyToApartment.isPending} onClick={() => applyToApartment.mutate(apartment.id)}>Aplikuj</button>
                     )}
                     {isOwner && <NavLink to={`/editApartment/${apartment.id}`} className="btn btn-primary">Edytuj</NavLink>}

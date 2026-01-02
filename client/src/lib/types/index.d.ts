@@ -97,3 +97,19 @@ type User = {
     imageUrl?: string
     userRole: string
 }
+export interface Bill {
+    id: string;
+    title: string;
+    description?: string;
+    amount: number;
+    dueDate: string;
+    apartmentId: string;
+}
+
+export interface CreateBillFormValues {
+    apartmentId: string;
+    title: string;
+    description: string;
+    amount: number;
+    dueDate: string;
+}

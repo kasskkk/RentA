@@ -98,12 +98,16 @@ const Faults = {
     create: (fault: any) => requests.post('/faults', fault),
     resolve: (id: string) => requests.put(`/faults/${id}/resolve`, {})
 }
-
+const Bills = {
+    list: (apartmentId: string) => requests.get(`/bills/${apartmentId}`),
+    create: (bill: any) => requests.post('/bills', bill)
+}
 const agent = {
     Account,
     Profiles,
     Apartments,
-    Faults
+    Faults,
+    Bills
 }
 
 export default agent;
