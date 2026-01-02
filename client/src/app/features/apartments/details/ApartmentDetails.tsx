@@ -9,6 +9,7 @@ import ProfileAvatarCard from "../../profiles/ProfileAvatarCard";
 import FaultList from "./FaultList";
 import type { Device, ApartmentMember } from "../../../../lib/types";
 import FaultCreateDialog from "./FaultCreateDialog";
+import ApartmentBills from "../bills/ApartmentBills";
 
 const APPLIANCES = [
     "Telewizor", "Lodówka", "Pralka", "Zmywarka",
@@ -25,16 +26,22 @@ export default function ApartmentDetails() {
     const { apartment, isPendingApartment, applyToApartment, loadApartment } = useApartments(id);
     const [mapOpen, setMapOpen] = useState(false);
     const { currentUser } = useAccount();
-    
-    const [activeTab, setActiveTab] = useState<'details' | 'faults'>('details');
+
+    // Stan aktywnej zakładki
+    const [activeTab, setActiveTab] = useState<'details' | 'faults' | 'bills'>('details');
+
+    // Stan modala zgłaszania usterek
     const [isFaultModalOpen, setFaultModalOpen] = useState(false);
 
+    // Sprawdzenie ról i przynależności
     const isOwner = currentUser?.userRole?.toLowerCase() === "owner";
+    const isMember = apartment?.apartmentMembers?.some((m: ApartmentMember) => m.userId === currentUser?.id);
 
     if (isPendingApartment) return <ApartmentSkeleton />;
     if (!apartment) return <div className="p-10 text-center">Nie znaleziono apartamentu.</div>;
 
-    const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) => 
+    // Licznik nierozwiązanych usterek
+    const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) =>
         acc + (device.faults?.filter(f => !f.isResolved).length || 0), 0) || 0;
 
     const appliances = apartment.devices.filter((d: Device) => APPLIANCES.includes(d.name));
@@ -90,7 +97,7 @@ export default function ApartmentDetails() {
                             </div>
 
                             <div className="card-actions mt-6 flex flex-col gap-2">
-                                {!isOwner && (
+                                {!isOwner && !isMember && (
                                     <button
                                         className="btn btn-primary w-full"
                                         disabled={applyToApartment.isPending}
@@ -128,24 +135,31 @@ export default function ApartmentDetails() {
                                 src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
                                 alt="Apartment" />
                         </figure>
-                        
+
                         <div className="card-body">
                             {/* Taby */}
                             <div role="tablist" className="tabs tabs-bordered">
-                                <button 
-                                    role="tab" 
-                                    className={`tab ${activeTab === 'details' ? 'tab-active' : ''}`} 
+                                <button
+                                    role="tab"
+                                    className={`tab ${activeTab === 'details' ? 'tab-active' : ''}`}
                                     onClick={() => setActiveTab('details')}
                                 >
                                     Szczegóły
                                 </button>
-                                <button 
-                                    role="tab" 
-                                    className={`tab ${activeTab === 'faults' ? 'tab-active' : ''}`} 
+                                <button
+                                    role="tab"
+                                    className={`tab ${activeTab === 'faults' ? 'tab-active' : ''}`}
                                     onClick={() => setActiveTab('faults')}
                                 >
                                     Usterki
                                     {activeFaultsCount > 0 && <span className="badge badge-error badge-xs ml-2 text-white">{activeFaultsCount}</span>}
+                                </button>
+                                <button
+                                    role="tab"
+                                    className={`tab ${activeTab === 'bills' ? 'tab-active' : ''}`}
+                                    onClick={() => setActiveTab('bills')}
+                                >
+                                    Rachunki
                                 </button>
                             </div>
 
@@ -164,17 +178,19 @@ export default function ApartmentDetails() {
                                         {apartment.devices.length === 0 && <div className="alert bg-base-200 text-sm">Brak informacji o wyposażeniu.</div>}
                                     </div>
 
-                                    {/* Mieszkańcy (Avatar Cards) */}
-                                    <div className="pt-6 border-t border-base-200">
-                                        <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">Mieszkańcy</h3>
-                                        <div className="flex flex-wrap gap-4">
-                                            {apartment.apartmentMembers?.map((memb: ApartmentMember) => (
-                                                <ProfileAvatarCard key={memb.user.id} profile={memb.user} />
-                                            ))}
+                                    {/* Mieszkańcy - widoczni dla właściciela i lokatorów */}
+                                    {(isOwner || isMember) && (
+                                        <div className="pt-6 border-t border-base-200">
+                                            <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">Mieszkańcy</h3>
+                                            <div className="flex flex-wrap gap-4">
+                                                {apartment.apartmentMembers?.map((memb: ApartmentMember) => (
+                                                    <ProfileAvatarCard key={memb.user.id} profile={memb.user} />
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
-                                    {/* Tabela zarządzania (tylko dla właściciela) */}
+                                    {/* Zarządzanie (tylko właściciel) */}
                                     {isOwner && (
                                         <div className="pt-6 border-t border-base-200">
                                             <h3 className="text-lg font-bold mb-4">Zarządzanie członkami</h3>
@@ -189,18 +205,25 @@ export default function ApartmentDetails() {
                             {/* Treść zakładki Usterki */}
                             {activeTab === 'faults' && (
                                 <div className="mt-6 animate-fade-in">
-                                    <FaultList 
-                                        devices={apartment.devices} 
-                                        isOwner={isOwner} 
+                                    <FaultList
+                                        devices={apartment.devices}
+                                        isOwner={isOwner}
                                         refresh={loadApartment}
-                                        onAddClick={() => setFaultModalOpen(true)} 
+                                        onAddClick={() => setFaultModalOpen(true)}
                                     />
-                                    <FaultCreateDialog 
+                                    <FaultCreateDialog
                                         isOpen={isFaultModalOpen}
                                         onClose={() => setFaultModalOpen(false)}
                                         onSuccess={loadApartment}
                                         devices={apartment.devices}
                                     />
+                                </div>
+                            )}
+
+                            {/* Treść zakładki Rachunki */}
+                            {activeTab === 'bills' && (
+                                <div className="mt-6 animate-fade-in">
+                                    <ApartmentBills isOwner={isOwner} />
                                 </div>
                             )}
                         </div>

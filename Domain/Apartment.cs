@@ -24,4 +24,5 @@ public class Apartment
     public double Longitude { get; set; }
     public ICollection<Device> Devices { get; set; } = [];
     public ICollection<ApartmentMember> ApartmentMembers { get; set; } = [];
+    public ICollection<Bill> Bills { get; set; } = [];
 }

@@ -15,10 +15,10 @@ export type Fault = {
 }
 
 export type Device = {
-    id?: string; 
+    id?: string;
     name: string;
     description?: string;
-    faults: Fault[]; 
+    faults: Fault[];
 }
 
 type Apartment = {
@@ -37,9 +37,9 @@ type Apartment = {
     apartmentNumber?: string
     latitude: number
     longitude: number
-    
+
     apartmentMembers: ApartmentMember[]
-    devices: Device[] 
+    devices: Device[]
 }
 
 export type MemberStatus = 'Pending' | 'Accepted' | 'Rejected'
@@ -109,4 +109,20 @@ type Photo = {
     url: string
     publicId: string
     userId: string
+}
+export interface Bill {
+    id: string;
+    title: string;
+    description?: string;
+    amount: number;
+    dueDate: string;
+    apartmentId: string;
+}
+
+export interface CreateBillFormValues {
+    apartmentId: string;
+    title: string;
+    description: string;
+    amount: number;
+    dueDate: string;
 }

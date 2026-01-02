@@ -1,5 +1,6 @@
 using System;
 using Application.Apartments.DTOs;
+using Application.Bills.DTOs;
 using Application.Faults.DTOs;
 using Application.Profiles.DTOs;
 using AutoMapper;
@@ -24,5 +25,7 @@ public class MappingProfiles : Profile
         CreateMap<Fault, Application.Faults.DTOs.FaultDto>()
             .ForMember(d => d.DeviceName, o => o.MapFrom(s => s.Device.Name));
         CreateMap<CreateFaultDto, Fault>();
+        CreateMap<CreateBillDto, Bill>();
+        CreateMap<Bill, BillDto>();
     }
 }
