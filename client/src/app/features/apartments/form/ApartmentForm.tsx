@@ -8,6 +8,7 @@ import TextInput from "../../../shared/components/TextInput";
 import LocationInput from "../../../shared/components/LocationInput";
 import NumberInput from "../../../shared/components/NumberInput";
 import type { Apartment } from "../../../../lib/types";
+import TextAreaInput from "../../../shared/components/TextAreaInput";
 
 export default function ApartmentForm() {
     const { control, reset, handleSubmit } = useForm({
@@ -83,7 +84,8 @@ export default function ApartmentForm() {
         <form onSubmit={handleSubmit(onSubmit)}>
             <div>
                 <TextInput label="Name" name="name" control={control} defaultValue="" />
-                <TextInput label="Description" name="description" control={control} defaultValue="" />
+                <TextAreaInput label={"Description"} name={"description"} control={control} defaultValue=""/>
+                {/* <TextInput label="Description" name="description" control={control} defaultValue="" /> */}
                 <NumberInput label="Price" name="pricePerMonth" control={control} defaultValue={0} />
                 <NumberInput label="Rooms" name="rooms" control={control} defaultValue={0} />
                 <NumberInput label="Area" name="area" control={control} defaultValue={0} />
