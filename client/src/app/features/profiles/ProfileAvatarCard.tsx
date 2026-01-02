@@ -9,7 +9,7 @@ export default function ProfileAvatarCard({ profile }: Props) {
     return (
         <NavLink to={`/profiles/${profile.id}`}>
             <div
-                className="avatar tooltip tooltip-bottom"
+                className="avatar tooltip tooltip-top"
                 data-tip={profile.displayName}
             >
                 <div className="w-9 h-9 rounded-full">

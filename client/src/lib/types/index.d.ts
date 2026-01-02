@@ -65,6 +65,8 @@ type LocationIQAddress = {
 
 type Profile = {
     id: string
+    email: string
+    phoneNumber: string
     displayName: string
     imageUrl?: string
     firstName?: string
@@ -74,6 +76,7 @@ type Profile = {
 type User = {
     id: string
     email: string
+    phoneNumber: string
     displayName: string
     firstName?: string
     lastName?: string
