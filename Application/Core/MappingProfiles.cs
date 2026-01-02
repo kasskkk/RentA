@@ -17,5 +17,7 @@ public class MappingProfiles : Profile
         CreateMap<ApartmentMember, ApartmentMemberDto>();
         CreateMap<Apartment, ApartmentDto>();
         CreateMap<User, UserProfile>();
+        CreateMap<Device, DeviceDto>();
+        CreateMap<DeviceDto, Device>();
     }
 }

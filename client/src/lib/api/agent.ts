@@ -39,7 +39,6 @@ agent.interceptors.response.use(
                 toast.error('Unauthorised');
                 break;
             case 404:
-                // toast.error('Resource not found');
                 router.navigate('/not-found');
                 break;
             case 500:

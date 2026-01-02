@@ -19,4 +19,5 @@ public class BaseApartmentDto
     public string? ApartmentNumber { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public List<DeviceDto> Devices { get; set; } = new();
 }

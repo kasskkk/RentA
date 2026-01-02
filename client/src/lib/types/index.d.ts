@@ -3,6 +3,15 @@ type PagedList<T, TCursor> = {
     nextCursor: TCursor
 }
 
+
+export type Device = {
+    id?: string; 
+    name: string;
+    brand: string;
+    description?: string; 
+}
+
+
 type Apartment = {
     id: string
     createdAt: string
@@ -19,7 +28,9 @@ type Apartment = {
     apartmentNumber?: string
     latitude: number
     longitude: number
+    
     apartmentMembers: ApartmentMember[]
+    devices: Device[] 
 }
 
 export type MemberStatus = 'Pending' | 'Accepted' | 'Rejected'
@@ -90,4 +101,3 @@ type Photo = {
     publicId: string
     userId: string
 }
-

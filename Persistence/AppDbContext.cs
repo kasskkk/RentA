@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
     public DbSet<Apartment> Apartments { get; set; }
     public DbSet<ApartmentMember> ApartmentMembers { get; set; }
     public DbSet<Photo> Photos { get; set; }
+    public DbSet<Device> Devices { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
