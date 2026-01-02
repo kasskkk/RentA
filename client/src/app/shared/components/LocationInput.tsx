@@ -42,7 +42,6 @@ export default function LocationInput<T extends FieldValues>({ label, ...props }
     const handleChange = (value: string) => {
         setInputValue(value);
         setDebouncedQuery(value);
-        // If user is typing, we clear the field value object until they select
         field.onChange(value);
     };
 
@@ -57,12 +56,10 @@ export default function LocationInput<T extends FieldValues>({ label, ...props }
 
     useEffect(() => {
         if (field.value && typeof field.value === "object") {
-            // 1. Sprawdź czy to pełny obiekt Apartamentu (z miastem)
             if ("city" in field.value) {
                 const val = field.value as Apartment;
                 setInputValue(`${val.city}${val.buildingNumber ? ` ${val.buildingNumber}` : ""}`);
             }
-            // 2. Jeśli to tylko obiekt lokalizacji (lat/long) - używane przy edycji
             else if ("latitude" in field.value && "longitude" in field.value) {
                 setInputValue(`${field.value.latitude.toFixed(4)}, ${field.value.longitude.toFixed(4)}`);
             }
