@@ -53,9 +53,8 @@ export const useAccount = () => {
             const response = await agent.get<User>('/account/user-info');
             return response.data
         },
-        enabled: 
-        // true
-        !querClient.getQueryData(['user'])
+        enabled:
+            !querClient.getQueryData(['user'])
             && location.pathname !== '/login'
             && location.pathname !== '/register'
     })

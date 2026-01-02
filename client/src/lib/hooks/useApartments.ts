@@ -83,6 +83,19 @@ export const useApartments = (id?: string) => {
         }
     })
 
+    const updateMemberStatus = useMutation({
+        mutationFn: async ({ id, userId, newStatus }: { id: string, userId: string, newStatus: string }) => {
+            await agent.put(`/apartments/${id}/members/${userId}`, {
+                status: newStatus
+            });
+        },
+        onSuccess: async (_, variables) => {
+            await queryClient.invalidateQueries({
+                queryKey: ['apartments', variables.id]
+            })
+        }
+    })
+
     const applyToApartment = useMutation({
         mutationFn: async (id: string) => {
             await agent.post(`/apartments/${id}/apply`);
@@ -135,6 +148,7 @@ export const useApartments = (id?: string) => {
         deleteApartment,
         apartment,
         isPendingApartment,
-        applyToApartment
+        applyToApartment,
+        updateMemberStatus
     }
 }

@@ -19,7 +19,6 @@ export default function SideBar() {
                             <span className="is-drawer-close:hidden">Homepage</span>
                         </NavLink>
                     </li>
-
                     {/* List item */}
                     <li>
                         <NavLink to="/apartments" className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Apartments" >

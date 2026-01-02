@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { useApartments } from "../../../../lib/hooks/useApartments";
 import ApartmentCard from "./ApartmentCard"
 import { useInView } from "react-intersection-observer";
+import ApartmentSkeleton from "../../../shared/components/ApartmentSkeleton";
 
 
 export default function ApartmentList() {
-    const { apartments, isPending, hasNextPage, fetchNextPage } = useApartments();
+    const { apartments, hasNextPage, fetchNextPage } = useApartments();
     const { ref, inView } = useInView({
         threshold: 0,
     });
@@ -16,7 +17,14 @@ export default function ApartmentList() {
         }
     }, [inView, hasNextPage, fetchNextPage])
 
-    if (!apartments || isPending) return <div>Laduje sie</div>
+    if (!apartments) return
+    (
+        <div className="grid grid-cols-3 gap-10">
+            <ApartmentSkeleton />
+            <ApartmentSkeleton />
+            <ApartmentSkeleton />
+        </div>
+    )
 
     return (
         <>
