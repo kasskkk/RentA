@@ -19,7 +19,6 @@ export default function TextInput<T extends FieldValues>(props: Props<T>) {
                 readOnly={props.readOnly}
                 {...field}
                 type="text"
-                placeholder="Type here"
                 className={`input ${fieldState.error ? 'input-error' : ''} ${fieldState.error ? 'placeholder-red-500' : ''}`}
             />
 

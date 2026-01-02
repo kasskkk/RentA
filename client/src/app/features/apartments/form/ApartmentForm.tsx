@@ -9,6 +9,7 @@ import LocationInput from "../../../shared/components/LocationInput";
 import NumberInput from "../../../shared/components/NumberInput";
 import type { Apartment } from "../../../../lib/types";
 import TextAreaInput from "../../../shared/components/TextAreaInput";
+import GeneratedTextInput from "../../../shared/components/GeneratedTextInput";
 
 export default function ApartmentForm() {
     const { control, reset, handleSubmit, setValue } = useForm({
@@ -104,14 +105,17 @@ export default function ApartmentForm() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                        <div className="opacity-80">
-                            <TextInput
+                        <div >
+                            <GeneratedTextInput
                                 name="name"
                                 control={control}
                                 defaultValue=""
                                 readOnly={true}
-                                className="input input-bordered bg-base-100 text-base-content font-semibold border-primary/30 focus:outline-none cursor-default"
-                                label={"Generated name"}
+                                label="Generated name"
+                                pointer-events-none
+                                select-none
+                                font-bold
+                                className="pointer-events-none select-none bg-base-100 text-base-content font-bold border-primary/20 opacity-100 shadow-sm"
                             />
                         </div>
                         <TextAreaInput label="Description" name="description" control={control} defaultValue="" />
