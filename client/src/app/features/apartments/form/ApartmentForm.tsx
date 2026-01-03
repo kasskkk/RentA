@@ -56,13 +56,11 @@ export default function ApartmentForm() {
     const bldNum = useWatch({ control, name: 'buildingNumber' });
     const aptNum = useWatch({ control, name: 'apartmentNumber' });
 
-    // Automatyczne generowanie nazwy
     useEffect(() => {
         const generatedName = `${city || ''}${street ? `, ${street}` : ''}${bldNum ? ` ${bldNum}` : ''}${aptNum ? `/${aptNum}` : ''}`;
         setValue('name', generatedName.trim());
     }, [city, street, bldNum, aptNum, setValue]);
 
-    // Resetowanie formularza danymi z API
     useEffect(() => {
         if (apartment) {
             reset({

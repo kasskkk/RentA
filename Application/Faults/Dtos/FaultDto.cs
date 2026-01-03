@@ -1,4 +1,4 @@
-namespace Application.Faults.Dtos; // Upewnij się, że namespace to Dtos (lub DTOs, zależnie od konwencji w folderze)
+namespace Application.Faults.Dtos; 
 
 public class FaultDto
 {

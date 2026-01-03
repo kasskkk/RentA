@@ -22,18 +22,15 @@ public class GetBills
         {
             var userId = userAccessor.GetUserId();
 
-            // 1. Sprawdzamy, czy użytkownik należy do tego apartamentu
-            // (Zakładamy, że każdy członek - lokator i właściciel - widzi rachunki)
             var isMember = await context.ApartmentMembers
                 .AnyAsync(x => x.ApartmentId == request.ApartmentId && x.UserId == userId, cancellationToken);
 
             if (!isMember)
                 return Result<List<BillDto>>.Failure("Nie masz dostępu do rachunków tego apartamentu", 403);
 
-            // 2. Pobieramy rachunki i mapujemy na Dto
             var bills = await context.Bills
                 .Where(x => x.ApartmentId == request.ApartmentId)
-                .OrderByDescending(x => x.DueDate) // Najpilniejsze/najnowsze na górze
+                .OrderByDescending(x => x.DueDate) 
                 .ProjectTo<BillDto>(mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 

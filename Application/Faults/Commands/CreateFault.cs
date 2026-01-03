@@ -31,7 +31,6 @@ public class CreateFault
         {
             var device = await context.Devices.FindAsync([request.FaultDto.DeviceId], cancellationToken);
 
-            // POPRAWKA: Dodano kod błędu 404
             if (device == null) return Result<Unit>.Failure("Urządzenie nie istnieje", 404);
 
             var fault = mapper.Map<Fault>(request.FaultDto);
@@ -40,7 +39,6 @@ public class CreateFault
 
             var result = await context.SaveChangesAsync(cancellationToken) > 0;
 
-            // POPRAWKA: Dodano kod błędu 400
             if (!result) return Result<Unit>.Failure("Nie udało się utworzyć zgłoszenia usterki", 400);
 
             return Result<Unit>.Success(Unit.Value);

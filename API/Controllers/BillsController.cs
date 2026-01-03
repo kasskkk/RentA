@@ -1,6 +1,6 @@
 using Application.Bills.Commands;
 using Application.Bills.DTOs;
-using Application.Bills.Queries; // Dodany namespace
+using Application.Bills.Queries; 
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
