@@ -37,12 +37,6 @@ export default function ApartmentMembersTable({ apartment }: Props) {
                                 <span className="badge badge-ghost badge-sm">✉️: {memb.user.email}</span>
                             </td>
                             <td>
-                                {/* <span className={`badge badge-outline font-semibold ${memb.memberStatus === 'Accepted' ? 'badge-success' :
-                                    memb.memberStatus === 'Rejected' ? 'badge-error' :
-                                        'badge-warning'
-                                    }`}>
-                                    {memb.memberStatus}
-                                </span> */}
 
                                 <div className="relative w-full max-w-xs">
                                     <select

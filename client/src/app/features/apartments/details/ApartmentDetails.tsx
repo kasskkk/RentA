@@ -177,11 +177,16 @@ export default function ApartmentDetails() {
 
                                     {(isOwner || isMember) && (
                                         <div className="pt-6 border-t border-base-200">
-                                            <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">Mieszkańcy</h3>
+                                            <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">
+                                                Mieszkańcy
+                                            </h3>
                                             <div className="flex flex-wrap gap-4">
-                                                {apartment.apartmentMembers?.map((memb: ApartmentMember) => (
-                                                    <ProfileAvatarCard key={memb.user.id} profile={memb.user} />
-                                                ))}
+                                                {apartment.apartmentMembers
+                                                    .filter(memb => memb.memberStatus === "Accepted")
+                                                    .map(memb => (
+                                                        <ProfileAvatarCard key={memb.userId} profile={memb.user} />
+                                                    ))
+                                                }
                                             </div>
                                         </div>
                                     )}
