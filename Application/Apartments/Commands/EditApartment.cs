@@ -21,25 +21,12 @@ public class EditApartment
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             var apartment = await context.Apartments
-                .Include(a => a.Devices) 
+                .Include(a => a.Devices)
                 .FirstOrDefaultAsync(x => x.Id == request.ApartmentDto.Id, cancellationToken);
 
             if (apartment == null) return Result<Unit>.Failure("Apartment not found", 404);
             mapper.Map(request.ApartmentDto, apartment);
-            if (request.ApartmentDto.Devices != null)
-            {
-                apartment.Devices.Clear();
 
-            await context.SaveChangesAsync(cancellationToken);
-                foreach (var deviceDto in request.ApartmentDto.Devices)
-                {
-                    apartment.Devices.Add(new Device
-                    {
-                        Name = deviceDto.Name,
-                        Description = deviceDto.Description
-                    });
-                }
-            }
             var result = await context.SaveChangesAsync(cancellationToken) > 0;
 
             // if (!result) return Result<Unit>.Failure("Failed to edit the apartment", 404);

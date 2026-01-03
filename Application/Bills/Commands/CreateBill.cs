@@ -1,61 +1,59 @@
-using Application.Core;
 using Application.Bills.DTOs;
-using Application.Interfaces;
-using AutoMapper;
+using Application.Core;
+using Application.Bills.Validators;
 using Domain;
 using FluentValidation;
 using MediatR;
 using Persistence;
-using Microsoft.EntityFrameworkCore;
 
-namespace Application.Bills.Commands;
-
-public class CreateBill
+namespace Application.Bills.Commands
 {
-    public class Command : IRequest<Result<Unit>>
+    public class CreateBill
     {
-        public CreateBillDto BillDto { get; set; }
-    }
-
-    public class CommandValidator : AbstractValidator<Command>
-    {
-        public CommandValidator()
+        public class Command : IRequest<Result<Unit>>
         {
-            RuleFor(x => x.BillDto.ApartmentId).NotEmpty();
-            RuleFor(x => x.BillDto.Title).NotEmpty();
-            RuleFor(x => x.BillDto.Amount).GreaterThan(0).WithMessage("Kwota musi być większa od 0");
-            RuleFor(x => x.BillDto.DueDate).NotEmpty();
+            public required CreateBillDto BillDto { get; set; }
         }
-    }
 
-    public class Handler(AppDbContext context, IMapper mapper, IUserAccessor userAccessor) : IRequestHandler<Command, Result<Unit>>
-    {
-        public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+        public class CommandValidator : AbstractValidator<Command>
         {
-            var userId = userAccessor.GetUserId();
+            public CommandValidator()
+            {
+                RuleFor(x => x.BillDto).SetValidator(new CreateBillValidator());
+            }
+        }
 
-            
-            var apartmentMember = await context.ApartmentMembers
-                .FirstOrDefaultAsync(x => 
-                    x.ApartmentId == request.BillDto.ApartmentId && 
-                    x.UserId == userId, cancellationToken);
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly AppDbContext _context;
 
-            if (apartmentMember == null) 
-                return Result<Unit>.Failure("Nie znaleziono apartamentu lub brak dostępu", 404);
+            public Handler(AppDbContext context)
+            {
+                _context = context;
+            }
 
-            if (!apartmentMember.IsOwner)
-                return Result<Unit>.Failure("Tylko właściciel może dodawać rachunki", 403);
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                var bill = new Bill
+                {
 
-            
-            var bill = mapper.Map<Bill>(request.BillDto);
+                    Id = Guid.NewGuid().ToString(),
 
-            context.Bills.Add(bill);
+                    Title = request.BillDto.Title,
+                    Amount = request.BillDto.Amount,
+                    DueDate = request.BillDto.DueDate,
+                    Description = request.BillDto.Description ?? "",
+                    ApartmentId = request.BillDto.ApartmentId.ToString()
+                };
 
-            var result = await context.SaveChangesAsync(cancellationToken) > 0;
+                _context.Bills.Add(bill);
 
-            if (!result) return Result<Unit>.Failure("Nie udało się dodać rachunku", 400);
+                var result = await _context.SaveChangesAsync(cancellationToken) > 0;
 
-            return Result<Unit>.Success(Unit.Value);
+                if (!result) return Result<Unit>.Failure("Failed to create bill", 400);
+
+                return Result<Unit>.Success(Unit.Value);
+            }
         }
     }
 }

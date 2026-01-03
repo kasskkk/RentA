@@ -23,6 +23,7 @@ export const apartmentSchema = z.object({
     apartmentNumber: z.string().optional(),
 
     devices: z.array(z.object({
+        id: z.string().optional(),
         name: requiredString("Nazwa urządzenia"),
         description: z.string().optional(),
     })).optional(),

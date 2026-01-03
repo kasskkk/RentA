@@ -6,10 +6,9 @@ import { useAccount } from "../../../../lib/hooks/useAccounts";
 import ApartmentSkeleton from "../../../shared/components/ApartmentSkeleton";
 import ApartmentMembersTable from "../../../shared/components/ApartmentMembersTable";
 import ProfileAvatarCard from "../../profiles/ProfileAvatarCard";
-import FaultList from "./FaultList";
 import type { Device, ApartmentMember } from "../../../../lib/types";
-import FaultCreateDialog from "./FaultCreateDialog";
 import ApartmentBills from "../bills/ApartmentBills";
+import FaultList from "./FaultList";
 
 const APPLIANCES = [
     "Telewizor", "Lodówka", "Pralka", "Zmywarka",
@@ -23,24 +22,18 @@ const AMENITIES = [
 
 export default function ApartmentDetails() {
     const { id } = useParams();
-    const { apartment, isPendingApartment, applyToApartment, loadApartment } = useApartments(id);
+    const { apartment, isPendingApartment, applyToApartment } = useApartments(id);
     const [mapOpen, setMapOpen] = useState(false);
     const { currentUser } = useAccount();
 
-    // Stan aktywnej zakładki
     const [activeTab, setActiveTab] = useState<'details' | 'faults' | 'bills'>('details');
 
-    // Stan modala zgłaszania usterek
-    const [isFaultModalOpen, setFaultModalOpen] = useState(false);
-
-    // Sprawdzenie ról i przynależności
     const isOwner = currentUser?.userRole?.toLowerCase() === "owner";
     const isMember = apartment?.apartmentMembers?.some((m: ApartmentMember) => m.userId === currentUser?.id);
 
     if (isPendingApartment) return <ApartmentSkeleton />;
     if (!apartment) return <div className="p-10 text-center">Nie znaleziono apartamentu.</div>;
 
-    // Licznik nierozwiązanych usterek
     const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) =>
         acc + (device.faults?.filter(f => !f.isResolved).length || 0), 0) || 0;
 
@@ -62,11 +55,7 @@ export default function ApartmentDetails() {
                             className="p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors duration-200 border border-base-200"
                         >
                             <span className="font-semibold text-sm text-base-content block">{device.name}</span>
-                            {device.description ? (
-                                <p className="text-xs text-base-content/70 mt-1">{device.description}</p>
-                            ) : (
-                                <p className="text-xs text-base-content/30 italic mt-1">Brak dodatkowego opisu</p>
-                            )}
+                            {device.description && <p className="text-xs text-base-content/70 mt-1">{device.description}</p>}
                         </div>
                     ))}
                 </div>
@@ -77,8 +66,7 @@ export default function ApartmentDetails() {
     return (
         <div className="max-w-7xl mx-auto p-4 lg:p-8">
             <div className="flex flex-col lg:flex-row gap-8">
-
-                {/* LEWA KOLUMNA: Sidebar */}
+                {/* LEWA KOLUMNA: Sidebar (bez zmian) */}
                 <div className="w-full lg:w-96 space-y-6">
                     <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
                         <figure className="bg-primary/10 p-8">
@@ -90,12 +78,10 @@ export default function ApartmentDetails() {
                         <div className="card-body">
                             <h1 className="card-title text-2xl font-bold">{apartment.name}</h1>
                             <div className="badge badge-secondary badge-outline">{apartment.city}, {apartment.street}</div>
-
                             <div className="mt-4 p-4 bg-base-200 rounded-lg">
                                 <div className="text-2xl font-black text-primary">{apartment.pricePerMonth} PLN</div>
                                 <div className="text-xs opacity-60 uppercase tracking-widest font-bold">Miesięcznie</div>
                             </div>
-
                             <div className="card-actions mt-6 flex flex-col gap-2">
                                 {!isOwner && !isMember && (
                                     <button
@@ -115,7 +101,6 @@ export default function ApartmentDetails() {
                             </div>
                         </div>
                     </div>
-
                     <button className="btn btn-outline btn-block" onClick={() => setMapOpen(!mapOpen)}>
                         {mapOpen ? 'Ukryj mapę' : 'Pokaż na mapie'}
                     </button>
@@ -126,41 +111,20 @@ export default function ApartmentDetails() {
                     )}
                 </div>
 
-                {/* PRAWA KOLUMNA: Treść główna z zakładkami */}
+                {/* PRAWA KOLUMNA: Treść główna */}
                 <div className="flex-1">
                     <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
-                        <figure className="max-h-64 overflow-hidden">
-                            <img
-                                className="w-full object-cover"
-                                src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-                                alt="Apartment" />
-                        </figure>
+                        {/* 🗑️ USUNIĘTE ZDJĘCIE (tag <figure>) */}
 
                         <div className="card-body">
                             {/* Taby */}
                             <div role="tablist" className="tabs tabs-bordered">
-                                <button
-                                    role="tab"
-                                    className={`tab ${activeTab === 'details' ? 'tab-active' : ''}`}
-                                    onClick={() => setActiveTab('details')}
-                                >
-                                    Szczegóły
-                                </button>
-                                <button
-                                    role="tab"
-                                    className={`tab ${activeTab === 'faults' ? 'tab-active' : ''}`}
-                                    onClick={() => setActiveTab('faults')}
-                                >
+                                <button role="tab" className={`tab ${activeTab === 'details' ? 'tab-active' : ''}`} onClick={() => setActiveTab('details')}>Szczegóły</button>
+                                <button role="tab" className={`tab ${activeTab === 'faults' ? 'tab-active' : ''}`} onClick={() => setActiveTab('faults')}>
                                     Usterki
                                     {activeFaultsCount > 0 && <span className="badge badge-error badge-xs ml-2 text-white">{activeFaultsCount}</span>}
                                 </button>
-                                <button
-                                    role="tab"
-                                    className={`tab ${activeTab === 'bills' ? 'tab-active' : ''}`}
-                                    onClick={() => setActiveTab('bills')}
-                                >
-                                    Rachunki
-                                </button>
+                                <button role="tab" className={`tab ${activeTab === 'bills' ? 'tab-active' : ''}`} onClick={() => setActiveTab('bills')}>Rachunki</button>
                             </div>
 
                             {/* Treść zakładki Szczegóły */}
@@ -170,15 +134,11 @@ export default function ApartmentDetails() {
                                         <h2 className="text-xl font-bold mb-2">Opis nieruchomości</h2>
                                         <p className="text-base-content/80 leading-relaxed whitespace-pre-line">{apartment.description}</p>
                                     </div>
-
                                     <div className="pt-4 border-t border-base-200">
                                         {renderDeviceSection("Sprzęt i Urządzenia", appliances, <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>)}
                                         {renderDeviceSection("Udogodnienia", amenities, <svg className="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>)}
                                         {renderDeviceSection("Pozostałe", others, <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>)}
-                                        {apartment.devices.length === 0 && <div className="alert bg-base-200 text-sm">Brak informacji o wyposażeniu.</div>}
                                     </div>
-
-                                    {/* Mieszkańcy - widoczni dla właściciela i lokatorów */}
                                     {(isOwner || isMember) && (
                                         <div className="pt-6 border-t border-base-200">
                                             <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">Mieszkańcy</h3>
@@ -189,8 +149,6 @@ export default function ApartmentDetails() {
                                             </div>
                                         </div>
                                     )}
-
-                                    {/* Zarządzanie (tylko właściciel) */}
                                     {isOwner && (
                                         <div className="pt-6 border-t border-base-200">
                                             <h3 className="text-lg font-bold mb-4">Zarządzanie członkami</h3>
@@ -205,17 +163,9 @@ export default function ApartmentDetails() {
                             {/* Treść zakładki Usterki */}
                             {activeTab === 'faults' && (
                                 <div className="mt-6 animate-fade-in">
-                                    <FaultList
-                                        devices={apartment.devices}
-                                        isOwner={isOwner}
-                                        refresh={loadApartment}
-                                        onAddClick={() => setFaultModalOpen(true)}
-                                    />
-                                    <FaultCreateDialog
-                                        isOpen={isFaultModalOpen}
-                                        onClose={() => setFaultModalOpen(false)}
-                                        onSuccess={loadApartment}
-                                        devices={apartment.devices}
+                                    <FaultList 
+                                        isOwner={isOwner} 
+                                        devices={apartment.devices} 
                                     />
                                 </div>
                             )}

@@ -3,15 +3,20 @@ type PagedList<T, TCursor> = {
     nextCursor: TCursor
 }
 
-export type Fault = {
+export interface Fault {
     id: string;
     title: string;
-    description: string;
-    dateReported: string;
+    description?: string;
+    dateReported: string; 
     isResolved: boolean;
     dateResolved?: string;
     deviceId: string;
-    deviceName?: string;
+    deviceName: string;
+}
+export interface CreateFaultFormValues {
+    title: string;
+    description: string;
+    deviceId: string;
 }
 
 export type Device = {
@@ -121,7 +126,7 @@ export interface Bill {
 
 export interface CreateBillFormValues {
     apartmentId: string;
-    title: string;
+    title: string;   
     description: string;
     amount: number;
     dueDate: string;

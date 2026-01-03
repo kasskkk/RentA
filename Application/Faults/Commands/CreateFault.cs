@@ -1,5 +1,5 @@
 using Application.Core;
-using Application.Faults.DTOs;
+using Application.Faults.Dtos;
 using AutoMapper;
 using Domain;
 using FluentValidation;
@@ -12,7 +12,7 @@ public class CreateFault
 {
     public class Command : IRequest<Result<Unit>>
     {
-        public CreateFaultDto FaultDto { get; set; }
+        public required CreateFaultDto FaultDto { get; set; }
     }
 
     public class CommandValidator : AbstractValidator<Command>

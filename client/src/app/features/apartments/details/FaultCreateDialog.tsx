@@ -1,66 +1,45 @@
-import { useState } from "react";
-import type { Device } from "../../../../lib/types";
-import agent from "../../../../lib/api/agent";
-import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
+import { useFaults } from "../../../../lib/hooks/useFaults";
+import type { Device, CreateFaultFormValues } from "../../../../lib/types";
 
 interface Props {
-    devices: Device[];
+    apartmentId: string;
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: () => void;
+    devices: Device[];
 }
 
-export default function FaultCreateDialog({ devices, isOpen, onClose, onSuccess }: Props) {
-    const [loading, setLoading] = useState(false);
+export default function FaultCreateDialog({ apartmentId, isOpen, onClose, devices }: Props) {
+    const { createFault } = useFaults(apartmentId);
     
-    // Stan formularza
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<CreateFaultFormValues>({
         title: "",
         description: "",
         deviceId: ""
     });
 
+    useEffect(() => {
+        if (isOpen) {
+            setFormData({ title: "", description: "", deviceId: "" });
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!formData.deviceId) {
-            toast.error("Wybierz urządzenie z listy");
-            return;
-        }
-
-        setLoading(true);
-        try {
-            // Wysyłamy żądanie do API
-            await agent.Faults.create({
-                title: formData.title,
-                description: formData.description,
-                deviceId: formData.deviceId,
-                dateReported: new Date().toISOString()
-            });
-            
-            toast.success("Zgłoszenie zostało wysłane!");
-            setFormData({ title: "", description: "", deviceId: "" }); // Reset formularza
-            onSuccess(); // Odświeżamy dane w ApartmentDetails
-            onClose();   // Zamykamy modal
-        } catch (error) {
-            console.log(error);
-            toast.error("Nie udało się wysłać zgłoszenia");
-        } finally {
-            setLoading(false);
-        }
-    }
+        createFault.mutate(formData, {
+            onSuccess: () => onClose()
+        });
+    };
 
     return (
-        <div className="modal modal-open bg-black/50">
-            <div className="modal-box relative">
-                <button onClick={onClose} className="btn btn-sm btn-circle absolute right-2 top-2">✕</button>
-                
+        <dialog className="modal modal-open bg-black/50">
+            <div className="modal-box">
+                <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 <h3 className="font-bold text-lg mb-4">Zgłoś nową usterkę</h3>
                 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    {/* Wybór urządzenia */}
                     <div className="form-control">
                         <label className="label"><span className="label-text font-semibold">Urządzenie</span></label>
                         <select 
@@ -76,7 +55,6 @@ export default function FaultCreateDialog({ devices, isOpen, onClose, onSuccess 
                         </select>
                     </div>
 
-                    {/* Tytuł */}
                     <div className="form-control">
                         <label className="label"><span className="label-text font-semibold">Tytuł problemu</span></label>
                         <input 
@@ -90,7 +68,6 @@ export default function FaultCreateDialog({ devices, isOpen, onClose, onSuccess 
                         />
                     </div>
 
-                    {/* Opis */}
                     <div className="form-control">
                         <label className="label"><span className="label-text font-semibold">Szczegółowy opis</span></label>
                         <textarea 
@@ -98,22 +75,19 @@ export default function FaultCreateDialog({ devices, isOpen, onClose, onSuccess 
                             placeholder="Opisz dokładnie co się dzieje..."
                             value={formData.description}
                             onChange={e => setFormData({...formData, description: e.target.value})}
-                            required
                             maxLength={500}
                         ></textarea>
                     </div>
 
-                    <div className="modal-action mt-6">
-                        <button type="button" className="btn" onClick={onClose} disabled={loading}>Anuluj</button>
-                        <button type="submit" className="btn btn-error text-white" disabled={loading}>
-                            {loading && <span className="loading loading-spinner loading-xs"></span>}
-                            Zgłoś usterkę
+                    <div className="modal-action">
+                        <button type="button" className="btn" onClick={onClose} disabled={createFault.isPending}>Anuluj</button>
+                        <button type="submit" className="btn btn-error text-white" disabled={createFault.isPending}>
+                            {createFault.isPending ? <span className="loading loading-spinner"></span> : 'Zgłoś usterkę'}
                         </button>
                     </div>
                 </form>
             </div>
-            {/* Tło zamykające modal po kliknięciu */}
             <div className="modal-backdrop" onClick={onClose}></div>
-        </div>
+        </dialog>
     );
 }

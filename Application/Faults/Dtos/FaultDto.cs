@@ -1,14 +1,14 @@
-using System;
-
-namespace Application.Faults.DTOs;
+namespace Application.Faults.Dtos; // Upewnij się, że namespace to Dtos (lub DTOs, zależnie od konwencji w folderze)
 
 public class FaultDto
 {
-    public string Id { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public required string Id { get; set; }
+    public required string Title { get; set; }
+    public string? Description { get; set; }
     public DateTime DateReported { get; set; }
     public bool IsResolved { get; set; }
-    public string DeviceId { get; set; }
-    public string DeviceName { get; set; } // Przydatne do wyświetlania
+    public DateTime? DateResolved { get; set; } 
+    
+    public required string DeviceId { get; set; }
+    public required string DeviceName { get; set; } 
 }

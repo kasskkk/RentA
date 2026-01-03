@@ -1,4 +1,5 @@
 using System;
+using Application.Bills.DTOs;
 using Application.Profiles.DTOs;
 using Domain.Enum;
 
@@ -24,4 +25,5 @@ public class ApartmentDto
     public double Longitude { get; set; }
     public ICollection<DeviceDto> Devices { get; set; } = [];
     public ICollection<ApartmentMemberDto> ApartmentMembers { get; set; } = [];
+    public ICollection<BillDto> Bills { get; set; } = [];
 }

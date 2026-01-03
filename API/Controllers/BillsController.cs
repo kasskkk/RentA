@@ -13,10 +13,9 @@ public class BillsController : BaseApiController
         return HandleResult(await Mediator.Send(new CreateBill.Command { BillDto = billDto }));
     }
 
-    // NOWA METODA GET
     [HttpGet("{apartmentId}")]
     public async Task<IActionResult> GetBills(string apartmentId)
-    {
-        return HandleResult(await Mediator.Send(new GetBills.Query { ApartmentId = apartmentId }));
-    }
+{
+    return HandleResult(await Mediator.Send(new GetBills.Query { ApartmentId = apartmentId }));
+}
 }

@@ -1,120 +1,94 @@
-import { useState } from "react";
-import agent from "../../../../lib/api/agent";
-import type { Device, Fault } from "../../../../lib/types";
-import toast from "react-hot-toast";
+import { useState } from 'react';
+import { useParams } from 'react-router';
+import { useFaults } from '../../../../lib/hooks/useFaults';
+import FaultCreateDialog from './FaultCreateDialog';
+import type { Device } from '../../../../lib/types';
 
 interface Props {
-    devices: Device[];
-    isOwner: boolean;       
-    refresh: () => void;    
-    onAddClick: () => void; 
+    isOwner: boolean; 
+    devices: Device[]; 
 }
 
-export default function FaultList({ devices, isOwner, refresh, onAddClick }: Props) {
-    const [loadingId, setLoadingId] = useState<string | null>(null);
-
-    // Spłaszczamy listę usterek i sortujemy od najnowszych
-    const allFaults = devices.flatMap(device => 
-        device.faults ? device.faults.map(fault => ({ ...fault, deviceName: device.name })) : []
-    ).sort((a, b) => new Date(b.dateReported).getTime() - new Date(a.dateReported).getTime());
-
-    const handleResolve = async (id: string) => {
-        setLoadingId(id);
-        try {
-            await agent.Faults.resolve(id);
-            toast.success("Usterka oznaczona jako naprawiona");
-            refresh(); 
-        } catch (error) {
-            console.log(error);
-            toast.error("Wystąpił błąd");
-        } finally {
-            setLoadingId(null);
-        }
-    }
+export default function FaultList({ isOwner, devices }: Props) {
+    const { id } = useParams();
+    const { faults, isLoadingFaults, resolveFault } = useFaults(id);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
-        <div className="mt-4">
-            {/* --- NAGŁÓWEK --- */}
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-lg text-base-content">Historia zgłoszeń</h3>
-                
-                {/* 👇 ZMIANA: Przycisk widoczny TYLKO dla najemców (!isOwner) */}
-                {!isOwner && (
-                    <button onClick={onAddClick} className="btn btn-sm btn-error text-white gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
-                        Zgłoś usterkę
-                    </button>
-                )}
+        <div className="animate-fade-in mt-4">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                   <h3 className="font-bold text-lg">Zgłoszone usterki</h3>
+                   <p className="text-sm opacity-70">Zarządzaj awariami w mieszkaniu</p>
+                </div>
+                <button 
+                    className="btn btn-error btn-sm md:btn-md text-white"
+                    onClick={() => setIsModalOpen(true)}
+                >
+                    + Zgłoś usterkę
+                </button>
             </div>
 
-            {/* --- LISTA USTEREK --- */}
-            {allFaults.length === 0 ? (
-                <div className="alert alert-success mt-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>Brak zgłoszonych usterek. Wszystkie urządzenia działają poprawnie.</span>
+            {isLoadingFaults ? (
+                <div className="flex justify-center p-8">
+                    <span className="loading loading-spinner loading-lg text-primary"></span>
+                </div>
+            ) : !faults || faults.length === 0 ? (
+                <div className="alert bg-base-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Brak zgłoszonych usterek.</span>
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">
-                    {allFaults.map((fault: Fault & { deviceName: string }) => (
-                        <div 
-                            key={fault.id} 
-                            className={`
-                                p-4 rounded-lg border transition-all duration-200
-                                ${fault.isResolved 
-                                    ? 'bg-base-200/30 border-base-200 opacity-60' 
-                                    : 'bg-base-100 border-error/30 shadow-sm hover:shadow-md'
-                                }
-                            `}
-                        >
-                            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                                
-                                {/* LEWA STRONA: OPIS */}
-                                <div className="flex-grow space-y-2">
-                                    <div className="flex items-center gap-3 flex-wrap">
-                                        <h3 className="font-bold text-lg text-base-content">{fault.title}</h3>
-                                        {fault.isResolved ? (
-                                            <div className="badge badge-success badge-outline gap-1">Naprawione</div>
-                                        ) : (
-                                            <div className="badge badge-error text-white gap-1">Do naprawy</div>
+                <div className="overflow-x-auto border border-base-200 rounded-lg">
+                    <table className="table table-zebra w-full">
+                        <thead className="bg-base-200">
+                            <tr>
+                                <th>Status</th>
+                                <th>Urządzenie</th>
+                                <th>Problem</th>
+                                <th>Zgłoszono</th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {faults.map(fault => (
+                                <tr key={fault.id}>
+                                    <td>
+                                        {fault.isResolved 
+                                            ? <span className="badge badge-success text-white gap-1">✓ Naprawione</span>
+                                            : <span className="badge badge-error text-white gap-1">⚠ Awaria</span>
+                                        }
+                                    </td>
+                                    <td className="font-bold text-sm">{fault.deviceName}</td>
+                                    <td>
+                                        <div className="font-bold">{fault.title}</div>
+                                        {fault.description && <div className="text-xs opacity-70 max-w-xs truncate">{fault.description}</div>}
+                                    </td>
+                                    <td className="text-sm">{new Date(fault.dateReported).toLocaleDateString('pl-PL')}</td>
+                                    <td>
+                                        {!fault.isResolved && (
+                                            <button 
+                                                className="btn btn-xs btn-outline btn-success"
+                                                onClick={() => resolveFault.mutate(fault.id)}
+                                                disabled={resolveFault.isPending}
+                                            >
+                                                {resolveFault.isPending ? '...' : 'Naprawione'}
+                                            </button>
                                         )}
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 text-sm text-base-content/70">
-                                        <span className="font-medium">{fault.deviceName}</span>
-                                        <span className="text-base-content/30">•</span>
-                                        <span>{new Date(fault.dateReported).toLocaleDateString('pl-PL')}</span>
-                                    </div>
-
-                                    <p className="text-base-content/90 leading-relaxed pt-1">{fault.description}</p>
-                                </div>
-
-                                {/* PRAWA STRONA: GUZIK (TYLKO DLA WŁAŚCICIELA) */}
-                                {isOwner && !fault.isResolved && (
-                                    <div className="flex-shrink-0 self-center sm:self-start">
-                                        <button 
-                                            onClick={() => handleResolve(fault.id)}
-                                            disabled={loadingId === fault.id}
-                                            className="btn btn-sm btn-success text-white no-animation shadow-sm"
-                                        >
-                                            {loadingId === fault.id ? (
-                                                <span className="loading loading-spinner loading-xs"></span>
-                                            ) : (
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                                </svg>
-                                            )}
-                                            Zatwierdź naprawę
-                                        </button>
-                                    </div>
-                                )}
-
-                            </div>
-                        </div>
-                    ))}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
+
+            <FaultCreateDialog 
+                apartmentId={id!} 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)}
+                devices={devices}
+            />
         </div>
     );
 }

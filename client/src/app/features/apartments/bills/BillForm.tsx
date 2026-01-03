@@ -1,48 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CreateBillFormValues } from '../../../../lib/types';
-import agent from '../../../../lib/api/agent';
-import toast from 'react-hot-toast';
+import { useBills } from '../../../../lib/hooks/useBills';
 
 interface Props {
     apartmentId: string;
     closeModal: () => void;
-    refreshBills: () => void;
 }
 
-export default function BillForm({ apartmentId, closeModal, refreshBills }: Props) {
-    const [loading, setLoading] = useState(false);
-
-    // Używamy Omit, aby pominąć pola okresu rozliczeniowego, jeśli nadal istnieją w głównym typie
-    const [formData, setFormData] = useState<Omit<CreateBillFormValues, 'periodStart' | 'periodEnd'>>({
-        apartmentId: apartmentId,
+export default function BillForm({ apartmentId, closeModal }: Props) {
+    const { createBill } = useBills(apartmentId);
+    const [formData, setFormData] = useState<Omit<CreateBillFormValues, 'apartmentId'>>({
         title: '',
         description: '',
         amount: 0,
         dueDate: ''
     });
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        try {
-            const payload = {
-                ...formData,
-                // Konwertujemy kwotę na liczbę
-                amount: Number(formData.amount),
-                // Backend otrzyma null dla periodStart/End, ponieważ ich nie wysyłamy
-            };
-
-            await agent.Bills.create(payload);
-
-            toast.success('Rachunek dodany pomyślnie');
-            refreshBills();
-            closeModal();
-        } catch (error) {
-            console.error(error);
-            toast.error('Nie udało się dodać rachunku');
-        } finally {
-            setLoading(false);
-        }
+        createBill.mutate({
+            ...formData,
+            apartmentId
+        }, {
+            onSuccess: () => {
+                closeModal();
+            }
+        });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -54,7 +37,7 @@ export default function BillForm({ apartmentId, closeModal, refreshBills }: Prop
         <dialog id="bill_modal" className="modal modal-open">
             <div className="modal-box w-11/12 max-w-2xl">
                 <form method="dialog">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={closeModal}>✕</button>
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={closeModal} type="button">✕</button>
                 </form>
                 <h3 className="font-bold text-lg mb-4">Dodaj nowy rachunek</h3>
 
@@ -75,7 +58,8 @@ export default function BillForm({ apartmentId, closeModal, refreshBills }: Prop
                             <input
                                 type="number" name="amount" step="0.01" required
                                 className="input input-bordered w-full"
-                                value={formData.amount} onChange={handleChange}
+                                value={formData.amount}
+                                onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
                             />
                         </div>
                         <div className="form-control w-full md:w-1/2">
@@ -99,18 +83,16 @@ export default function BillForm({ apartmentId, closeModal, refreshBills }: Prop
                     </div>
 
                     <div className="modal-action">
-                        <button type="button" className="btn" onClick={closeModal} disabled={loading}>
+                        <button type="button" className="btn" onClick={closeModal} disabled={createBill.isPending}>
                             Anuluj
                         </button>
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? <span className="loading loading-spinner"></span> : 'Zapisz'}
+                        <button type="submit" className="btn btn-primary" disabled={createBill.isPending}>
+                            {createBill.isPending ? <span className="loading loading-spinner"></span> : 'Zapisz'}
                         </button>
                     </div>
                 </form>
             </div>
-            <form method="dialog" className="modal-backdrop">
-                <button onClick={closeModal}>close</button>
-            </form>
+            <div className="modal-backdrop" onClick={closeModal}></div>
         </dialog>
     );
 }
