@@ -14,13 +14,16 @@ public class MappingProfiles : Profile
     {
         CreateMap<Apartment, Apartment>();
         CreateMap<CreateApartmentDto, Apartment>();
-        CreateMap<EditApartmentDto, Apartment>();
+        CreateMap<EditApartmentDto, Apartment>()
+            .ForMember(d => d.Devices, o => o.Ignore());
         CreateMap<User, UserProfile>();
         CreateMap<ApartmentMember, ApartmentMemberDto>();
         CreateMap<Apartment, ApartmentDto>();
         CreateMap<User, UserProfile>();
         CreateMap<Device, DeviceDto>();
-        CreateMap<DeviceDto, Device>();
+        CreateMap<DeviceDto, Device>()
+    .ForMember(d => d.Id, o => o.Ignore())
+    .ForMember(d => d.Faults, o => o.Ignore());
         CreateMap<Fault, FaultDto>()
             .ForMember(d => d.DeviceName, o => o.MapFrom(s => s.Device.Name));
         CreateMap<CreateFaultDto, Fault>();
