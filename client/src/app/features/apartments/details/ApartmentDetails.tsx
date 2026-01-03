@@ -7,7 +7,7 @@ import ApartmentSkeleton from "../../../shared/components/ApartmentSkeleton";
 import ApartmentMembersTable from "../../../shared/components/ApartmentMembersTable";
 import ProfileAvatarCard from "../../profiles/ProfileAvatarCard";
 import FaultList from "./FaultList";
-import type { Device, ApartmentMember } from "../../../../lib/types";
+import type { Device } from "../../../../lib/types";
 import FaultCreateDialog from "./FaultCreateDialog";
 import ApartmentBills from "../bills/ApartmentBills";
 
@@ -31,12 +31,13 @@ export default function ApartmentDetails() {
 
     const [isFaultModalOpen, setFaultModalOpen] = useState(false);
 
-    const isOwner = currentUser?.userRole?.toLowerCase() === "owner";
-    const isMember = apartment?.apartmentMembers?.some((m: ApartmentMember) => m.userId === currentUser?.id);
-
     if (isPendingApartment) return <ApartmentSkeleton />;
     if (!apartment) return <div className="p-10 text-center">Nie znaleziono apartamentu.</div>;
 
+    const isOwner = currentUser?.userRole?.toLowerCase() === "owner";
+    const isMember = apartment.apartmentMembers?.some(member =>
+        member.user.id === currentUser?.id && member.memberStatus === "Accepted"
+    );
     const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) =>
         acc + (device.faults?.filter(f => !f.isResolved).length || 0), 0) || 0;
 
@@ -92,7 +93,7 @@ export default function ApartmentDetails() {
                             </div>
 
                             <div className="card-actions mt-6 flex flex-col gap-2">
-                                {!isOwner && !isMember && (
+                                {(!isMember) && (
                                     <button
                                         className="btn btn-primary w-full"
                                         disabled={applyToApartment.isPending}
@@ -139,7 +140,7 @@ export default function ApartmentDetails() {
                                 >
                                     Szczegóły
                                 </button>
-                                {isMember || isOwner && (
+                                {(isOwner || isMember) && (
                                     <div>
                                         <button
                                             role="tab"
@@ -184,7 +185,7 @@ export default function ApartmentDetails() {
                                                 {apartment.apartmentMembers
                                                     .filter(memb => memb.memberStatus === "Accepted")
                                                     .map(memb => (
-                                                        <ProfileAvatarCard key={memb.userId} profile={memb.user} />
+                                                        <ProfileAvatarCard key={memb.user.id} profile={memb.user} />
                                                     ))
                                                 }
                                             </div>
@@ -202,7 +203,6 @@ export default function ApartmentDetails() {
                                 </div>
                             )}
 
-                            {/* Treść zakładki Usterki */}
                             {activeTab === 'faults' && (
                                 <div className="mt-6 animate-fade-in">
                                     <FaultList
@@ -218,7 +218,6 @@ export default function ApartmentDetails() {
                                 </div>
                             )}
 
-                            {/* Treść zakładki Rachunki */}
                             {activeTab === 'bills' && (
                                 <div className="mt-6 animate-fade-in">
                                     <ApartmentBills isOwner={isOwner} />

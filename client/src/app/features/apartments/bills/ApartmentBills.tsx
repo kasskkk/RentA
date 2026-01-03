@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
-import agent from '../../../../lib/api/agent';
-import type { Bill } from '../../../../lib/types';
-import BillForm from './BillForm';
+import { useState } from 'react';
 import { useParams } from 'react-router';
+import { useApartments } from '../../../../lib/hooks/useApartments';
+import BillForm from './BillForm';
 
 interface Props {
     isOwner: boolean;
@@ -10,28 +9,10 @@ interface Props {
 
 export default function ApartmentBills({ isOwner }: Props) {
     const { id } = useParams();
-    const [bills, setBills] = useState<Bill[]>([]);
-    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    useEffect(() => {
-        if (id) loadBills();
-    }, [id]);
-
-    function loadBills() {
-        if (!id) return;
-        setLoading(true);
-
-        // Zmieniamy z agent.Bills.list(id) na bezpośredni get
-        agent.get(`/apartments/${id}/bills`)
-            .then((response: any) => {
-                // Sprawdź czy dane są w response.data (zależy od Twojego agenta)
-                const data = response.data || response;
-                setBills(data);
-            })
-            .catch(error => console.error("Błąd ładowania rachunków:", error))
-            .finally(() => setLoading(false));
-    }
+    
+    // Używamy gotowego hooka zamiast ręcznego fetchowania
+    const { bills, isPendingBills } = useApartments(id);
 
     const formatDate = (date: string) => new Date(date).toLocaleDateString('pl-PL');
     const formatCurrency = (amount: number) =>
@@ -54,13 +35,15 @@ export default function ApartmentBills({ isOwner }: Props) {
                 )}
             </div>
 
-            {loading ? (
+            {isPendingBills ? (
                 <div className="flex justify-center p-8">
                     <span className="loading loading-spinner loading-lg text-primary"></span>
                 </div>
-            ) : bills.length === 0 ? (
+            ) : !bills || bills.length === 0 ? (
                 <div className="alert bg-base-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                     <span>Brak rachunków dla tego apartamentu.</span>
                 </div>
             ) : (
@@ -72,7 +55,6 @@ export default function ApartmentBills({ isOwner }: Props) {
                                 <th>Termin płatności</th>
                                 <th>Kwota</th>
                                 <th className="hidden md:table-cell">Opis</th>
-                                {/* Usunięto kolumnę Okres */}
                             </tr>
                         </thead>
                         <tbody>
@@ -91,7 +73,6 @@ export default function ApartmentBills({ isOwner }: Props) {
                                         <td className="hidden md:table-cell text-sm opacity-70 max-w-xs truncate">
                                             {bill.description || '-'}
                                         </td>
-                                        {/* Usunięto komórkę Okres */}
                                     </tr>
                                 );
                             })}
@@ -104,7 +85,8 @@ export default function ApartmentBills({ isOwner }: Props) {
                 <BillForm
                     apartmentId={id!}
                     closeModal={() => setIsModalOpen(false)}
-                    refreshBills={loadBills}
+                    // loadBills nie jest już potrzebne, bo React Query samo odświeży dane
+                    refreshBills={() => {}} 
                 />
             )}
         </div>
