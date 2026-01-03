@@ -1,10 +1,7 @@
-using System;
 using Application.Apartments.Commands;
 using Application.Apartments.DTOs;
 using Application.Apartments.Queries;
 using Application.Core;
-using Domain;
-using Domain.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
