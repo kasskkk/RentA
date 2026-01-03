@@ -139,7 +139,7 @@ export default function ApartmentDetails() {
                                 >
                                     Szczegóły
                                 </button>
-                                {isMember && (
+                                {isMember || isOwner && (
                                     <div>
                                         <button
                                             role="tab"
