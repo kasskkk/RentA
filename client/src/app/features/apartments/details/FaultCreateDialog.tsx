@@ -1,19 +1,19 @@
 import { useState } from "react";
+import { useParams } from "react-router";
 import type { Device } from "../../../../lib/types";
-import agent from "../../../../lib/api/agent";
 import toast from "react-hot-toast";
+import { useApartments } from "../../../../lib/hooks/useApartments";
 
 interface Props {
     devices: Device[];
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: () => void;
 }
 
-export default function FaultCreateDialog({ devices, isOpen, onClose, onSuccess }: Props) {
-    const [loading, setLoading] = useState(false);
-    
-    // Stan formularza
+export default function FaultCreateDialog({ devices, isOpen, onClose }: Props) {
+    const { id } = useParams();
+    const { createFault } = useApartments(id);
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -24,95 +24,89 @@ export default function FaultCreateDialog({ devices, isOpen, onClose, onSuccess 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!formData.deviceId) {
             toast.error("Wybierz urządzenie z listy");
             return;
         }
 
-        setLoading(true);
-        try {
-            // Wysyłamy żądanie do API
-            await agent.Faults.create({
-                title: formData.title,
-                description: formData.description,
-                deviceId: formData.deviceId,
-                dateReported: new Date().toISOString()
-            });
-            
-            toast.success("Zgłoszenie zostało wysłane!");
-            setFormData({ title: "", description: "", deviceId: "" }); // Reset formularza
-            onSuccess(); // Odświeżamy dane w ApartmentDetails
-            onClose();   // Zamykamy modal
-        } catch (error) {
-            console.log(error);
-            toast.error("Nie udało się wysłać zgłoszenia");
-        } finally {
-            setLoading(false);
-        }
-    }
+        createFault.mutate({
+            ...formData,
+            dateReported: new Date().toISOString()
+        }, {
+            onSuccess: () => {
+                toast.success("Usterka została zgłoszona");
+                setFormData({ title: "", description: "", deviceId: "" });
+                onClose();
+            },
+            onError: () => {
+                toast.error("Wystąpił błąd podczas zgłaszania");
+            }
+        });
+    };
 
     return (
         <div className="modal modal-open bg-black/50">
             <div className="modal-box relative">
-                <button onClick={onClose} className="btn btn-sm btn-circle absolute right-2 top-2">✕</button>
-                
+                <button
+                    onClick={onClose}
+                    className="btn btn-sm btn-circle absolute right-2 top-2"
+                >✕</button>
+
                 <h3 className="font-bold text-lg mb-4">Zgłoś nową usterkę</h3>
-                
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    {/* Wybór urządzenia */}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="form-control">
-                        <label className="label"><span className="label-text font-semibold">Urządzenie</span></label>
-                        <select 
+                        <label className="label text-xs uppercase font-bold opacity-60">Urządzenie</label>
+                        <select
                             className="select select-bordered w-full"
                             value={formData.deviceId}
-                            onChange={e => setFormData({...formData, deviceId: e.target.value})}
-                            required
+                            onChange={(e) => setFormData({ ...formData, deviceId: e.target.value })}
                         >
-                            <option value="" disabled>-- Wybierz co się zepsuło --</option>
-                            {devices.map(d => (
-                                <option key={d.id} value={d.id}>{d.name}</option>
+                            <option value="">Wybierz sprzęt...</option>
+                            {devices.map((device) => (
+                                <option key={device.id} value={device.id}>
+                                    {device.name}
+                                </option>
                             ))}
                         </select>
                     </div>
 
-                    {/* Tytuł */}
                     <div className="form-control">
-                        <label className="label"><span className="label-text font-semibold">Tytuł problemu</span></label>
-                        <input 
-                            type="text" 
-                            className="input input-bordered w-full" 
-                            placeholder="np. Pralka nie wiruje"
+                        <label className="label text-xs uppercase font-bold opacity-60">Tytuł usterki</label>
+                        <input
+                            type="text"
+                            className="input input-bordered w-full"
+                            placeholder="Np. Pralka nie wypompowuje wody"
                             value={formData.title}
-                            onChange={e => setFormData({...formData, title: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             required
-                            maxLength={50}
                         />
                     </div>
 
-                    {/* Opis */}
                     <div className="form-control">
-                        <label className="label"><span className="label-text font-semibold">Szczegółowy opis</span></label>
-                        <textarea 
-                            className="textarea textarea-bordered h-24 resize-none" 
-                            placeholder="Opisz dokładnie co się dzieje..."
+                        <label className="label text-xs uppercase font-bold opacity-60">Opis</label>
+                        <textarea
+                            className="textarea textarea-bordered h-24"
+                            placeholder="Opisz co się dzieje..."
                             value={formData.description}
-                            onChange={e => setFormData({...formData, description: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             required
-                            maxLength={500}
                         ></textarea>
                     </div>
 
-                    <div className="modal-action mt-6">
-                        <button type="button" className="btn" onClick={onClose} disabled={loading}>Anuluj</button>
-                        <button type="submit" className="btn btn-error text-white" disabled={loading}>
-                            {loading && <span className="loading loading-spinner loading-xs"></span>}
+                    <div className="modal-action">
+                        <button
+                            type="submit"
+                            className="btn btn-error text-white w-full"
+                            disabled={createFault.isPending}
+                        >
+                            {createFault.isPending && <span className="loading loading-spinner loading-xs"></span>}
                             Zgłoś usterkę
                         </button>
                     </div>
                 </form>
             </div>
-            {/* Tło zamykające modal po kliknięciu */}
             <div className="modal-backdrop" onClick={onClose}></div>
         </div>
     );

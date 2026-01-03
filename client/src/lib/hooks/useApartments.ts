@@ -2,7 +2,7 @@ import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClie
 import agent from "../api/agent";
 import { useLocation } from "react-router";
 import { useAccount } from "./useAccounts";
-import type { PagedList, Apartment } from "../types";
+import type { PagedList, Apartment, Bill } from "../types";
 import { useApartmentStore } from "../stores/useApartmentStore";
 
 export const useApartments = (id?: string) => {
@@ -33,8 +33,6 @@ export const useApartments = (id?: string) => {
             && !!currentUser
     });
 
-    const apartments = apartmentsGroups?.pages.flatMap(page => page.items) ?? [];
-
     const { data: apartment, isPending: isPendingApartment } = useQuery({
         queryKey: ['apartments', id],
         queryFn: async () => {
@@ -56,6 +54,44 @@ export const useApartments = (id?: string) => {
             })
         }
     })
+
+    const createFault = useMutation({
+        mutationFn: async (newFault: { title: string; description: string; deviceId: string; dateReported: string }) => {
+            const response = await agent.post('/faults', newFault);
+            return response.data;
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
+
+    const resolveFault = useMutation({
+        mutationFn: async (faultId: string) => {
+            await agent.put(`/faults/${faultId}/resolve`, {});
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
+
+    const { data: bills, isPending: isPendingBills } = useQuery({
+        queryKey: ['bills', id],
+        queryFn: async () => {
+            const response = await agent.get<Bill[]>(`/bills/${id}`);
+            return response.data;
+        },
+        enabled: !!id && !!currentUser
+    });
+
+    const createBill = useMutation({
+        mutationFn: async (bill: unknown) => {
+            const response = await agent.post('/bills', bill);
+            return response.data;
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['bills', id] });
+        }
+    });
 
     const updateApartment = useMutation({
         mutationFn: async (apartment: Apartment) => {
@@ -138,7 +174,7 @@ export const useApartments = (id?: string) => {
     });
 
     return {
-        apartments,
+        apartments: apartmentsGroups?.pages.flatMap(page => page.items) ?? [],
         isFetchingNextPage,
         fetchNextPage,
         hasNextPage,
@@ -149,6 +185,11 @@ export const useApartments = (id?: string) => {
         apartment,
         isPendingApartment,
         applyToApartment,
-        updateMemberStatus
+        updateMemberStatus,
+        createBill,
+        bills,
+        isPendingBills,
+        createFault,
+        resolveFault
     }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import agent from '../../../../lib/api/agent';
-import type{ Bill } from '../../../../lib/types';
+import type { Bill } from '../../../../lib/types';
 import BillForm from './BillForm';
 import { useParams } from 'react-router';
 
@@ -21,25 +21,31 @@ export default function ApartmentBills({ isOwner }: Props) {
     function loadBills() {
         if (!id) return;
         setLoading(true);
-        agent.Bills.list(id)
-            .then((items: any) => setBills(items))
-            .catch(error => console.error(error))
+
+        // Zmieniamy z agent.Bills.list(id) na bezpośredni get
+        agent.get(`/apartments/${id}/bills`)
+            .then((response: any) => {
+                // Sprawdź czy dane są w response.data (zależy od Twojego agenta)
+                const data = response.data || response;
+                setBills(data);
+            })
+            .catch(error => console.error("Błąd ładowania rachunków:", error))
             .finally(() => setLoading(false));
     }
 
     const formatDate = (date: string) => new Date(date).toLocaleDateString('pl-PL');
-    const formatCurrency = (amount: number) => 
+    const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount);
 
     return (
         <div className="animate-fade-in mt-4">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                   <h3 className="font-bold text-lg">Historia płatności</h3>
-                   <p className="text-sm opacity-70">Zarządzaj rachunkami i opłatami</p>
+                    <h3 className="font-bold text-lg">Historia płatności</h3>
+                    <p className="text-sm opacity-70">Zarządzaj rachunkami i opłatami</p>
                 </div>
                 {isOwner && (
-                    <button 
+                    <button
                         className="btn btn-primary btn-sm md:btn-md"
                         onClick={() => setIsModalOpen(true)}
                     >
@@ -71,7 +77,7 @@ export default function ApartmentBills({ isOwner }: Props) {
                         </thead>
                         <tbody>
                             {bills.map((bill) => {
-                                const isOverdue = new Date(bill.dueDate) < new Date(); 
+                                const isOverdue = new Date(bill.dueDate) < new Date();
                                 return (
                                     <tr key={bill.id} className="hover">
                                         <td className="font-bold">{bill.title}</td>
@@ -95,10 +101,10 @@ export default function ApartmentBills({ isOwner }: Props) {
             )}
 
             {isModalOpen && (
-                <BillForm 
-                    apartmentId={id!} 
-                    closeModal={() => setIsModalOpen(false)} 
-                    refreshBills={loadBills} 
+                <BillForm
+                    apartmentId={id!}
+                    closeModal={() => setIsModalOpen(false)}
+                    refreshBills={loadBills}
                 />
             )}
         </div>
