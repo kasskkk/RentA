@@ -23,24 +23,20 @@ const AMENITIES = [
 
 export default function ApartmentDetails() {
     const { id } = useParams();
-    const { apartment, isPendingApartment, applyToApartment, loadApartment } = useApartments(id);
+    const { apartment, isPendingApartment, applyToApartment } = useApartments(id);
     const [mapOpen, setMapOpen] = useState(false);
     const { currentUser } = useAccount();
 
-    // Stan aktywnej zakładki
     const [activeTab, setActiveTab] = useState<'details' | 'faults' | 'bills'>('details');
 
-    // Stan modala zgłaszania usterek
     const [isFaultModalOpen, setFaultModalOpen] = useState(false);
 
-    // Sprawdzenie ról i przynależności
     const isOwner = currentUser?.userRole?.toLowerCase() === "owner";
     const isMember = apartment?.apartmentMembers?.some((m: ApartmentMember) => m.userId === currentUser?.id);
 
     if (isPendingApartment) return <ApartmentSkeleton />;
     if (!apartment) return <div className="p-10 text-center">Nie znaleziono apartamentu.</div>;
 
-    // Licznik nierozwiązanych usterek
     const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) =>
         acc + (device.faults?.filter(f => !f.isResolved).length || 0), 0) || 0;
 
@@ -78,7 +74,6 @@ export default function ApartmentDetails() {
         <div className="max-w-7xl mx-auto p-4 lg:p-8">
             <div className="flex flex-col lg:flex-row gap-8">
 
-                {/* LEWA KOLUMNA: Sidebar */}
                 <div className="w-full lg:w-96 space-y-6">
                     <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
                         <figure className="bg-primary/10 p-8">
@@ -126,18 +121,16 @@ export default function ApartmentDetails() {
                     )}
                 </div>
 
-                {/* PRAWA KOLUMNA: Treść główna z zakładkami */}
                 <div className="flex-1">
                     <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
-                        <figure className="max-h-64 overflow-hidden">
-                            <img
-                                className="w-full object-cover"
-                                src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-                                alt="Apartment" />
+                        <figure className="bg-primary/10 p-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary">
+                                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                                <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            </svg>
                         </figure>
 
                         <div className="card-body">
-                            {/* Taby */}
                             <div role="tablist" className="tabs tabs-bordered">
                                 <button
                                     role="tab"
@@ -146,24 +139,28 @@ export default function ApartmentDetails() {
                                 >
                                     Szczegóły
                                 </button>
-                                <button
-                                    role="tab"
-                                    className={`tab ${activeTab === 'faults' ? 'tab-active' : ''}`}
-                                    onClick={() => setActiveTab('faults')}
-                                >
-                                    Usterki
-                                    {activeFaultsCount > 0 && <span className="badge badge-error badge-xs ml-2 text-white">{activeFaultsCount}</span>}
-                                </button>
-                                <button
-                                    role="tab"
-                                    className={`tab ${activeTab === 'bills' ? 'tab-active' : ''}`}
-                                    onClick={() => setActiveTab('bills')}
-                                >
-                                    Rachunki
-                                </button>
+                                {isMember && (
+                                    <div>
+                                        <button
+                                            role="tab"
+                                            className={`tab ${activeTab === 'faults' ? 'tab-active' : ''}`}
+                                            onClick={() => setActiveTab('faults')}
+                                        >
+                                            Usterki
+                                            {activeFaultsCount > 0 && <span className="badge badge-error badge-xs ml-2 text-white">{activeFaultsCount}</span>}
+                                        </button>
+
+                                        <button
+                                            role="tab"
+                                            className={`tab ${activeTab === 'bills' ? 'tab-active' : ''}`}
+                                            onClick={() => setActiveTab('bills')}
+                                        >
+                                            Rachunki
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Treść zakładki Szczegóły */}
                             {activeTab === 'details' && (
                                 <div className="mt-6 animate-fade-in space-y-8">
                                     <div>
@@ -178,7 +175,6 @@ export default function ApartmentDetails() {
                                         {apartment.devices.length === 0 && <div className="alert bg-base-200 text-sm">Brak informacji o wyposażeniu.</div>}
                                     </div>
 
-                                    {/* Mieszkańcy - widoczni dla właściciela i lokatorów */}
                                     {(isOwner || isMember) && (
                                         <div className="pt-6 border-t border-base-200">
                                             <h3 className="font-bold text-sm uppercase tracking-wide opacity-70 mb-4">Mieszkańcy</h3>
@@ -190,7 +186,6 @@ export default function ApartmentDetails() {
                                         </div>
                                     )}
 
-                                    {/* Zarządzanie (tylko właściciel) */}
                                     {isOwner && (
                                         <div className="pt-6 border-t border-base-200">
                                             <h3 className="text-lg font-bold mb-4">Zarządzanie członkami</h3>
@@ -208,13 +203,11 @@ export default function ApartmentDetails() {
                                     <FaultList
                                         devices={apartment.devices}
                                         isOwner={isOwner}
-                                        refresh={loadApartment}
                                         onAddClick={() => setFaultModalOpen(true)}
                                     />
                                     <FaultCreateDialog
                                         isOpen={isFaultModalOpen}
                                         onClose={() => setFaultModalOpen(false)}
-                                        onSuccess={loadApartment}
                                         devices={apartment.devices}
                                     />
                                 </div>

@@ -47,7 +47,7 @@ export default function ApartmentCard({ apartment }: Props) {
                 </div>
 
                 <p className="text-sm text-base-content/60 line-clamp-2 italic">
-                    "{apartment.description}"
+                    {apartment.description}
                 </p>
 
                 {/* Akcje */}

@@ -31,11 +31,13 @@ export default function ProfilePage() {
                 ) : <div></div>}
             </div>
             <div>
-                <div>{profile?.firstName}das</div>
+                <div>First name: {profile?.firstName}</div>
                 <div className="divider"></div>
-                <div>{profile?.lastName}dsds</div>
+                <div>Last name: {profile?.lastName}</div>
                 <div className="divider"></div>
-                <div>{profile?.displayName}dasads</div>
+                <div>Display name: {profile?.displayName}</div>
+                <div className="divider"></div>
+                <div>Phone number: {profile?.phoneNumber}</div>
             </div>
         </>
     )
