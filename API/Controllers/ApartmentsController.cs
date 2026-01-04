@@ -69,4 +69,9 @@ public class ApartmentsController : BaseApiController
             ApartmentId = id
         }));
     }
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyApartments()
+    {
+        return HandleResult(await Mediator.Send(new GetUserApartments.Query()));
+    }
 }

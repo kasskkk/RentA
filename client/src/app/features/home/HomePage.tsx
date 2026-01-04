@@ -1,6 +1,12 @@
 import DashboardCalendar from "./DashboardCalendar";
+import { useAccount } from "../../../lib/hooks/useAccounts";
+import { useUserApartments } from "../../../lib/hooks/useApartments"; // Zmieniony import
+import ApartmentCard from "../apartments/dashboard/ApartmentCard";
 
 export default function HomePage() {
+    const { currentUser } = useAccount();
+    const { userApartments, isPendingUserApartments } = useUserApartments();
+
     return (
         <div className="p-4 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
@@ -9,19 +15,36 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex justify-center md:justify-start">
-                    <DashboardCalendar />
-                </div>
 
-                {/* <div className="card bg-base-100 shadow-xl border border-base-300 h-fit">
-                    <div className="card-body">
-                        <h2 className="card-title">Szybkie akcje</h2>
-                        <div className="flex flex-col gap-2">
-                            <button className="btn btn-primary btn-outline">Zgłoś usterkę</button>
-                            <button className="btn btn-ghost">Zobacz rachunki</button>
-                        </div>
+                {currentUser?.userRole !== 'Owner' && (
+                    <div className="flex justify-center md:justify-start">
+                        <DashboardCalendar />
                     </div>
-                </div> */}
+                )}
+                
+                <div>
+                    <h2 className="text-xl font-bold mb-4">Twoje mieszkania</h2>
+                    
+                    {isPendingUserApartments ? (
+                        <div className="flex justify-center p-10">
+                            <span className="loading loading-spinner loading-lg"></span>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-4">
+                            {userApartments && userApartments.length > 0 ? (
+                                userApartments.map(apartment => (
+                                    <ApartmentCard key={apartment.id} apartment={apartment} />
+                                ))
+                            ) : (
+                                <div className="alert bg-base-200">
+                                    Nie należysz jeszcze do żadnego mieszkania.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+                
+                
             </div>
         </div>
     )

@@ -5,6 +5,40 @@ import { useAccount } from "./useAccounts";
 import type { PagedList, Apartment, Bill } from "../types";
 import { useApartmentStore } from "../stores/useApartmentStore";
 
+export const useUserBills = () => {
+    const { currentUser } = useAccount();
+
+    const { data: userBills, isPending: isPendingUserBills } = useQuery({
+        queryKey: ['userBills'],
+        queryFn: async () => {
+            const response = await agent.get<Bill[]>('/bills');
+            return response.data;
+        },
+        enabled: !!currentUser
+    });
+
+    return {
+        userBills,
+        isPendingUserBills
+    }
+}
+export const useUserApartments = () => {
+    const { currentUser } = useAccount();
+
+    const { data: userApartments, isPending: isPendingUserApartments } = useQuery({
+        queryKey: ['userApartments'],
+        queryFn: async () => {
+            const response = await agent.get<Apartment[]>('/apartments/my');
+            return response.data;
+        },
+        enabled: !!currentUser
+    });
+
+    return {
+        userApartments,
+        isPendingUserApartments
+    }
+}
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();
     const location = useLocation();
@@ -29,8 +63,8 @@ export const useApartments = (id?: string) => {
         initialPageParam: null,
         placeholderData: keepPreviousData,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
-        enabled: location.pathname === '/apartments'
-            && !!currentUser
+        // enabled: location.pathname === '/apartments'
+        enabled: !!currentUser
     });
 
     const { data: apartment, isPending: isPendingApartment } = useQuery({
@@ -90,6 +124,8 @@ export const useApartments = (id?: string) => {
         },
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['bills', id] });
+            // Odświeżamy też globalną listę rachunków użytkownika
+            await queryClient.invalidateQueries({ queryKey: ['userBills'] });
         }
     });
 
@@ -174,18 +210,18 @@ export const useApartments = (id?: string) => {
     });
 
     const uploadApartmentPhoto = useMutation({
-    mutationFn: async ({ id, file }: { id: string; file: Blob }) => {
-        const formData = new FormData();
-        formData.append('File', file); 
+        mutationFn: async ({ id, file }: { id: string; file: Blob }) => {
+            const formData = new FormData();
+            formData.append('File', file);
 
-        return await agent.post(`/apartments/${id}/photos`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-    },
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['apartments', id] });
-    }
-});
+            return await agent.post(`/apartments/${id}/photos`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
 
     return {
         apartments: apartmentsGroups?.pages.flatMap(page => page.items) ?? [],
@@ -207,4 +243,5 @@ export const useApartments = (id?: string) => {
         resolveFault,
         uploadApartmentPhoto
     }
+    
 }
