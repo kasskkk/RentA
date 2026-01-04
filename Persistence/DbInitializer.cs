@@ -68,6 +68,7 @@ public class DbInitializer
             var apartments = new List<Apartment>();
             var rnd = new Random();
 
+            // Definicje urządzeń i udogodnień
             var appliancesDefinitions = new[]
             {
                 new { Name = "Telewizor", Desc = "Smart TV 55 cali, 4K" },
@@ -92,14 +93,26 @@ public class DbInitializer
                 new { Name = "Recepcja / Ochrona", Desc = "Monitoring i portier" }
             };
 
-            // Lista przykładowych usterek do losowania
+            // Pula tytułów usterek
             var faultTitles = new[] {
                 "Dziwne dźwięki podczas pracy",
                 "Nie włącza się",
                 "Uszkodzony panel sterowania",
                 "Wyciek wody",
                 "Przegrzewa się",
-                "Błąd na wyświetlaczu"
+                "Błąd na wyświetlaczu",
+                "Mechaniczne uszkodzenie obudowy",
+                "Słaba wydajność"
+            };
+
+            // Pula dodatkowych rachunków (poza czynszem)
+            var billTypes = new[]
+            {
+                new { Title = "Energia Elektryczna", Desc = "Opłata za zużycie prądu", Min = 100, Max = 400 },
+                new { Title = "Internet + TV", Desc = "Abonament miesięczny", Min = 60, Max = 120 },
+                new { Title = "Woda i ścieki", Desc = "Rozliczenie wodomierzy", Min = 80, Max = 250 },
+                new { Title = "Gaz", Desc = "Opłata za gaz ziemny", Min = 50, Max = 200 },
+                new { Title = "Ogrzewanie", Desc = "Zaliczka CO", Min = 200, Max = 600 }
             };
 
             foreach (var owner in ownersList)
@@ -142,27 +155,11 @@ public class DbInitializer
                     });
                 }
 
-                // Dodawanie urządzeń z losowymi usterkami
-                var selectedAppliances = appliancesDefinitions.OrderBy(_ => rnd.Next()).Take(rnd.Next(2, 6));
+                // --- 1. DODAWANIE URZĄDZEŃ (Bez usterek na starcie) ---
+                var selectedAppliances = appliancesDefinitions.OrderBy(_ => rnd.Next()).Take(rnd.Next(3, 7)); // min 3, max 6
                 foreach (var item in selectedAppliances)
                 {
-                    var device = new Device { Name = item.Name, Description = item.Desc };
-
-                    // 30% szans na usterkę w urządzeniu
-                    if (rnd.NextDouble() > 0.7)
-                    {
-                        var isResolved = rnd.Next(0, 2) == 1; // 50% szans, że usterka jest już naprawiona
-                        device.Faults.Add(new Fault
-                        {
-                            Title = faultTitles[rnd.Next(faultTitles.Length)],
-                            Description = "Zgłoszenie wygenerowane automatycznie podczas seedowania bazy danych.",
-                            DateReported = DateTime.Now.AddDays(-rnd.Next(1, 60)),
-                            IsResolved = isResolved,
-                            DateResolved = isResolved ? DateTime.Now.AddDays(-rnd.Next(1, 5)) : null
-                        });
-                    }
-
-                    fullApartment.Devices.Add(device);
+                    fullApartment.Devices.Add(new Device { Name = item.Name, Description = item.Desc });
                 }
 
                 var selectedAmenities = amenitiesDefinitions.OrderBy(_ => rnd.Next()).Take(rnd.Next(2, 6));
@@ -171,9 +168,56 @@ public class DbInitializer
                     fullApartment.Devices.Add(new Device { Name = item.Name, Description = item.Desc });
                 }
 
+                // --- 2. GENEROWANIE 2-3 USTEREK ---
+                // Wybieramy losowo 2 lub 3 urządzenia z tych, które właśnie dodaliśmy
+                var devicesForFaults = fullApartment.Devices
+                    .OrderBy(_ => rnd.Next())
+                    .Take(rnd.Next(2, 4)) // Losuje 2 lub 3
+                    .ToList();
+
+                foreach (var device in devicesForFaults)
+                {
+                    var isResolved = rnd.Next(0, 2) == 1; // 50/50 resolved
+                    device.Faults.Add(new Fault
+                    {
+                        Title = faultTitles[rnd.Next(faultTitles.Length)],
+                        Description = "Usterka wygenerowana losowo przez seedera.",
+                        DateReported = DateTime.Now.AddDays(-rnd.Next(1, 60)),
+                        IsResolved = isResolved,
+                        DateResolved = isResolved ? DateTime.Now.AddDays(-rnd.Next(1, 5)) : null
+                    });
+                }
+
+                // --- 3. GENEROWANIE 2-3 RACHUNKÓW ---
+                // a) Zawsze czynsz
+                fullApartment.Bills.Add(new Bill
+                {
+                    Title = $"Czynsz - {DateTime.Now:MMMM yyyy}",
+                    Description = "Czynsz najmu + opłaty administracyjne",
+                    Amount = fullApartment.PricePerMonth,
+                    DueDate = DateTime.Now.AddDays(rnd.Next(5, 15)),
+                    ApartmentId = fullApartment.Id
+                });
+
+                // b) Losujemy 1 lub 2 dodatkowe rachunki, aby łącznie było 2 lub 3
+                int extraBillsCount = rnd.Next(1, 3); // da 1 lub 2
+                var selectedBillTypes = billTypes.OrderBy(_ => rnd.Next()).Take(extraBillsCount).ToList();
+
+                foreach (var billDef in selectedBillTypes)
+                {
+                    fullApartment.Bills.Add(new Bill
+                    {
+                        Title = billDef.Title,
+                        Description = billDef.Desc,
+                        Amount = rnd.Next(billDef.Min, billDef.Max),
+                        DueDate = DateTime.Now.AddDays(rnd.Next(2, 20)),
+                        ApartmentId = fullApartment.Id
+                    });
+                }
+
                 apartments.Add(fullApartment);
 
-                // --- Mieszkanie oczekujące ---
+                // --- Mieszkanie oczekujące (Pending) ---
 
                 var pendingApartment = new Apartment
                 {
@@ -213,20 +257,36 @@ public class DbInitializer
                     });
                 }
 
-                // Dodawanie urządzeń do pending apartment
-                var dev1 = new Device { Name = "Internet (WiFi)", Description = "Podstawowy" };
-                pendingApartment.Devices.Add(dev1);
+                // Dodaj urządzenia do pending
+                var pDev1 = new Device { Name = "Internet (WiFi)", Description = "Podstawowy" };
+                var pDev2 = new Device { Name = "Lodówka", Description = "Stara" };
+                var pDev3 = new Device { Name = "Pralka", Description = "Wirnikowa" };
+                
+                pendingApartment.Devices.Add(pDev1);
+                pendingApartment.Devices.Add(pDev2);
+                pendingApartment.Devices.Add(pDev3);
 
-                var dev2 = new Device { Name = "Lodówka", Description = "Stara" };
-                // Dodajmy jedną usterkę do lodówki w "oczekującym" mieszkaniu
-                dev2.Faults.Add(new Fault
+                // Dodaj 2 usterki do pending
+                pDev2.Faults.Add(new Fault { Title = "Głośna praca", Description = "Buczy", DateReported = DateTime.Now.AddDays(-2) });
+                pDev3.Faults.Add(new Fault { Title = "Nie wiruje", Description = "Bęben stoi", DateReported = DateTime.Now.AddDays(-5) });
+
+                // Dodaj 2 rachunki do pending
+                pendingApartment.Bills.Add(new Bill
                 {
-                    Title = "Głośna praca",
-                    Description = "Lodówka buczy w nocy.",
-                    DateReported = DateTime.Now.AddDays(-2),
-                    IsResolved = false
+                    Title = "Kaucja",
+                    Description = "Kaucja zwrotna",
+                    Amount = pendingApartment.PricePerMonth,
+                    DueDate = DateTime.Now.AddDays(3),
+                    ApartmentId = pendingApartment.Id
                 });
-                pendingApartment.Devices.Add(dev2);
+                pendingApartment.Bills.Add(new Bill
+                {
+                    Title = "Opłata rezerwacyjna",
+                    Description = "Bezzwrotna",
+                    Amount = 500m,
+                    DueDate = DateTime.Now.AddDays(1),
+                    ApartmentId = pendingApartment.Id
+                });
 
                 apartments.Add(pendingApartment);
             }
