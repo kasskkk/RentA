@@ -125,9 +125,8 @@ export default function ApartmentDetails() {
                 <div className="flex-1">
                     <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
                         {apartment.photos && apartment.photos.length > 0 ? (
-                            <div className="carousel w-full">
+                            <div className="carousel w-full bg-base-300">
                                 {apartment.photos.map((photo, index) => {
-                                    // Calculate previous and next IDs for navigation
                                     const prevId = index === 0 ? apartment.photos.length : index;
                                     const nextId = index === apartment.photos.length - 1 ? 1 : index + 2;
 
@@ -135,16 +134,25 @@ export default function ApartmentDetails() {
                                         <div
                                             key={index}
                                             id={`slide${index + 1}`}
-                                            className="carousel-item relative w-full"
+                                            className="carousel-item relative w-full flex justify-center items-center overflow-hidden aspect-video max-h-[500px] bg-black"
                                         >
                                             <img
-                                                src={photo.url} // Assuming photo is a URL string
+                                                src={photo.url}
                                                 alt={`Apartment view ${index + 1}`}
-                                                className="w-full object-cover h-64" // Added height/object-cover for consistency
+                                                className="w-full h-full object-contain" // object-contain pokaże całe zdjęcie bez ucinania
                                             />
-                                            <div className="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
-                                                <a href={`#slide${prevId}`} className="btn btn-circle">❮</a>
-                                                <a href={`#slide${nextId}`} className="btn btn-circle">❯</a>
+
+                                            {/* Overlay z przyciskami - widoczny tylko jeśli jest więcej niż 1 zdjęcie */}
+                                            {apartment.photos.length > 1 && (
+                                                <div className="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                                    <a href={`#slide${prevId}`} className="btn btn-circle btn-sm md:btn-md bg-base-100/50 border-none backdrop-blur-md">❮</a>
+                                                    <a href={`#slide${nextId}`} className="btn btn-circle btn-sm md:btn-md bg-base-100/50 border-none backdrop-blur-md">❯</a>
+                                                </div>
+                                            )}
+
+                                            {/* Licznik zdjęć */}
+                                            <div className="absolute bottom-4 right-4 badge badge-neutral bg-black/50 border-none backdrop-blur-md">
+                                                {index + 1} / {apartment.photos.length}
                                             </div>
                                         </div>
                                     );
