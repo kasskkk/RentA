@@ -40,6 +40,7 @@ type Apartment = {
 
     apartmentMembers: ApartmentMember[]
     devices: Device[]
+    photos: Photo[]
 }
 
 export type MemberStatus = 'Pending' | 'Accepted' | 'Rejected'

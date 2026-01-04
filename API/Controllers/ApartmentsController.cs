@@ -2,6 +2,7 @@ using Application.Apartments.Commands;
 using Application.Apartments.DTOs;
 using Application.Apartments.Queries;
 using Application.Core;
+using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,6 +57,16 @@ public class ApartmentsController : BaseApiController
             Id = id,
             UserId = userId,
             MemberStatus = statusDto.Status
+        }));
+    }
+
+    [HttpPost("{id}/photos")]
+    public async Task<ActionResult<Photo>> AddPhoto(string id, IFormFile file)
+    {
+        return HandleResult(await Mediator.Send(new AddApartmentPhoto.Command
+        {
+            File = file,
+            ApartmentId = id
         }));
     }
 }

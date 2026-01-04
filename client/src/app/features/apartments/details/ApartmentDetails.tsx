@@ -124,13 +124,49 @@ export default function ApartmentDetails() {
 
                 <div className="flex-1">
                     <div className="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
-                        <figure className="bg-primary/10 p-8">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary">
-                                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
-                                <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                            </svg>
-                        </figure>
+                        {apartment.photos && apartment.photos.length > 0 ? (
+                            <div className="carousel w-full">
+                                {apartment.photos.map((photo, index) => {
+                                    // Calculate previous and next IDs for navigation
+                                    const prevId = index === 0 ? apartment.photos.length : index;
+                                    const nextId = index === apartment.photos.length - 1 ? 1 : index + 2;
 
+                                    return (
+                                        <div
+                                            key={index}
+                                            id={`slide${index + 1}`}
+                                            className="carousel-item relative w-full"
+                                        >
+                                            <img
+                                                src={photo.url} // Assuming photo is a URL string
+                                                alt={`Apartment view ${index + 1}`}
+                                                className="w-full object-cover h-64" // Added height/object-cover for consistency
+                                            />
+                                            <div className="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                                                <a href={`#slide${prevId}`} className="btn btn-circle">❮</a>
+                                                <a href={`#slide${nextId}`} className="btn btn-circle">❯</a>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <figure className="bg-primary/10 p-8 flex justify-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="100"
+                                    height="100"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    className="text-primary"
+                                >
+                                    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                                    <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                </svg>
+                            </figure>
+                        )}
                         <div className="card-body">
                             <div role="tablist" className="tabs tabs-bordered">
                                 <button

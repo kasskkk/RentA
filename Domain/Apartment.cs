@@ -25,4 +25,5 @@ public class Apartment
     public ICollection<Device> Devices { get; set; } = [];
     public ICollection<ApartmentMember> ApartmentMembers { get; set; } = [];
     public ICollection<Bill> Bills { get; set; } = [];
+    public ICollection<Photo> Photos { get; set; } = [];
 }

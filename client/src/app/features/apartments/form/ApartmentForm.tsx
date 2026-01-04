@@ -1,23 +1,24 @@
 import { useNavigate, useParams } from "react-router";
 import { useApartments } from "../../../../lib/hooks/useApartments";
 import { useForm, useFieldArray, useWatch } from 'react-hook-form';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { apartmentSchema, type ApartmentSchema } from "../../../../lib/schemas/apartmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../../shared/components/TextInput";
 import LocationInput from "../../../shared/components/LocationInput";
 import NumberInput from "../../../shared/components/NumberInput";
-import type { Apartment } from "../../../../lib/types";
+import type { Apartment, Photo } from "../../../../lib/types";
 import TextAreaInput from "../../../shared/components/TextAreaInput";
 import GeneratedTextInput from "../../../shared/components/GeneratedTextInput";
+import PhotoUploadWidget from "../../../shared/components/PhotoUploadWidget";
 
 const APPLIANCES = [
-    "Telewizor", "Lodówka", "Pralka", "Zmywarka", 
+    "Telewizor", "Lodówka", "Pralka", "Zmywarka",
     "Klimatyzacja", "Mikrofalówka", "Żelazko", "Suszarka do włosów"
 ];
 
 const AMENITIES = [
-    "Internet (WiFi)", "Balkon / Taras", "Garaż / Parking", 
+    "Internet (WiFi)", "Balkon / Taras", "Garaż / Parking",
     "Winda", "Ogród", "Basen", "Siłownia", "Recepcja / Ochrona"
 ];
 
@@ -38,6 +39,7 @@ export default function ApartmentForm() {
             buildingNumber: '',
             apartmentNumber: '',
             devices: [] as { name: string; brand?: string; description?: string }[],
+            photos: [] as Photo[],
             location: { longitude: 0, latitude: 0 }
         }
     });
@@ -48,13 +50,14 @@ export default function ApartmentForm() {
     });
 
     const { id } = useParams();
-    const { apartment, updateApartment, createApartment } = useApartments(id);
+    const { apartment, updateApartment, createApartment, uploadApartmentPhoto } = useApartments(id);
     const navigate = useNavigate();
 
     const city = useWatch({ control, name: 'city' });
     const street = useWatch({ control, name: 'street' });
     const bldNum = useWatch({ control, name: 'buildingNumber' });
     const aptNum = useWatch({ control, name: 'apartmentNumber' });
+    const watchedPhotos = useWatch({ control, name: 'photos' });
 
     useEffect(() => {
         const generatedName = `${city || ''}${street ? `, ${street}` : ''}${bldNum ? ` ${bldNum}` : ''}${aptNum ? `/${aptNum}` : ''}`;
@@ -72,6 +75,14 @@ export default function ApartmentForm() {
             });
         }
     }, [apartment, reset]);
+
+    const [isUploading, setIsUploading] = useState(false);
+
+    useEffect(() => {
+        if (apartment?.photos) {
+            console.log("Zdjęcia apartamentu:", apartment.photos);
+        }
+    }, [apartment]);
 
     const onSubmit = async (data: ApartmentSchema) => {
         const { location, ...rest } = data;
@@ -106,9 +117,8 @@ export default function ApartmentForm() {
                         return (
                             <div
                                 key={deviceName}
-                                className={`rounded-lg border transition-all duration-200 flex flex-col ${
-                                    isSelected ? 'border-primary bg-base-100 shadow-sm' : 'border-base-300 hover:border-base-content/30'
-                                }`}
+                                className={`rounded-lg border transition-all duration-200 flex flex-col ${isSelected ? 'border-primary bg-base-100 shadow-sm' : 'border-base-300 hover:border-base-content/30'
+                                    }`}
                             >
                                 <label className="label cursor-pointer p-3 w-full">
                                     <span className={`label-text font-medium ${isSelected ? 'text-primary' : ''}`}>
@@ -149,6 +159,48 @@ export default function ApartmentForm() {
         <div className="flex min-h-screen items-center justify-center bg-base-100 p-4">
             <div className="card w-full max-w-2xl bg-base-200 shadow-xl border border-base-300">
                 <form onSubmit={handleSubmit(onSubmit)} className="card-body gap-6">
+                    {id && apartment && (
+                        <div className="card w-full max-w-2xl bg-base-200 shadow-xl border border-base-300">
+                            <div className="card-body">
+                                <div className="flex justify-between items-center border-b border-base-300 pb-4 mb-4">
+                                    <h2 className="card-title font-bold">Galeria zdjęć ({apartment.photos?.length || 0}/20)</h2>
+                                    <button
+                                        type="button"
+                                        className={`btn btn-sm ${isUploading ? 'btn-ghost' : 'btn-primary'}`}
+                                        onClick={() => setIsUploading(!isUploading)}
+                                    >
+                                        {isUploading ? 'Anuluj' : 'Dodaj zdjęcie'}
+                                    </button>
+                                </div>
+
+                                {isUploading ? (
+                                    <div className="animate-in fade-in zoom-in duration-300">
+                                        <PhotoUploadWidget
+                                            uploadPhoto={(file) => {
+                                                uploadApartmentPhoto.mutate({ id, file }, {
+                                                    onSuccess: () => setIsUploading(false)
+                                                });
+                                            }}
+                                            loading={uploadApartmentPhoto.isPending}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {watchedPhotos?.map((photo) => (
+                                            <div key={photo.id} className="relative group ...">
+                                                <img src={photo.url}/>
+                                            </div>
+                                        ))}
+                                        {(!watchedPhotos || watchedPhotos.length === 0) && (
+                                            <p className="col-span-full text-center py-10 opacity-50 italic">
+                                                To mieszkanie nie ma jeszcze żadnych zdjęć.
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     {/* Header */}
                     <div className="flex justify-between items-center border-b border-base-300 pb-4">
                         <h2 className="card-title text-2xl font-bold">

@@ -173,6 +173,20 @@ export const useApartments = (id?: string) => {
         }
     });
 
+    const uploadApartmentPhoto = useMutation({
+    mutationFn: async ({ id, file }: { id: string; file: Blob }) => {
+        const formData = new FormData();
+        formData.append('File', file); 
+
+        return await agent.post(`/apartments/${id}/photos`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+    }
+});
+
     return {
         apartments: apartmentsGroups?.pages.flatMap(page => page.items) ?? [],
         isFetchingNextPage,
@@ -190,6 +204,7 @@ export const useApartments = (id?: string) => {
         bills,
         isPendingBills,
         createFault,
-        resolveFault
+        resolveFault,
+        uploadApartmentPhoto
     }
 }

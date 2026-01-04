@@ -13,4 +13,7 @@ public class Photo
     public required string UserId { get; set; }
     [JsonIgnore]
     public User User { get; set; } = null!;
+    public string? ApartmentId { get; set; }
+    [JsonIgnore]
+    public Apartment? Apartment { get; set; }
 }

@@ -21,6 +21,7 @@ export const apartmentSchema = z.object({
     street: requiredString("Street"),
     buildingNumber: requiredString("Building number"),
     apartmentNumber: z.string().optional(),
+    photos: z.array(z.any()).optional(),
 
     devices: z.array(z.object({
         name: requiredString("Nazwa urządzenia"),
