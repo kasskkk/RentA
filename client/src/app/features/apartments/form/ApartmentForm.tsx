@@ -10,7 +10,7 @@ import NumberInput from "../../../shared/components/NumberInput";
 import type { Apartment, Photo } from "../../../../lib/types";
 import TextAreaInput from "../../../shared/components/TextAreaInput";
 import GeneratedTextInput from "../../../shared/components/GeneratedTextInput";
-import PhotoUploadWidget from "../../../shared/components/PhotoUploadWidget";
+import PhotoApartmentUploadWidget from "../../../shared/components/PhotoApartmentUploadWidget";
 
 const APPLIANCES = [
     "Telewizor", "Lodówka", "Pralka", "Zmywarka",
@@ -208,7 +208,7 @@ export default function ApartmentForm() {
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             {/* Widget Uploadu (7 kolumn) */}
                             <div className="lg:col-span-7 bg-base-100 p-4 rounded-2xl border border-base-300 shadow-inner">
-                                <PhotoUploadWidget
+                                <PhotoApartmentUploadWidget
                                     uploadPhoto={(file) => {
                                         uploadApartmentPhoto.mutate({ id: id!, file }, {
                                             onSuccess: () => {
