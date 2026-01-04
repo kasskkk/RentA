@@ -1,0 +1,88 @@
+
+.react-calendar {
+    width: 100%;
+    max-width: 100%;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    line-height: 1.125em;
+}
+
+.react-calendar__navigation__prev2-button,
+.react-calendar__navigation__next2-button {
+    display: none;
+}
+
+.react-calendar__navigation {
+    display: flex;
+    height: 44px;
+    margin-bottom: 1em;
+}
+
+.react-calendar__navigation button {
+    min-width: 44px;
+    background: none;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: currentColor; 
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+    background-color: var(--fallback-b2,oklch(var(--b2)/1)); 
+    border-radius: 0.5rem;
+}
+
+.react-calendar__month-view__weekdays {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.75em;
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+    padding: 0.5em;
+    text-decoration: none; 
+}
+.react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+    cursor: default;
+}
+
+.react-calendar__tile {
+    max-width: 100%;
+    padding: 15px 6.6667px;
+    background: none;
+    text-align: center;
+    line-height: 16px;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+    background-color: var(--fallback-b2,oklch(var(--b2)/1));
+}
+
+.react-calendar__tile--now {
+    background: var(--fallback-s,oklch(var(--s)/0.2)); 
+    color: var(--fallback-sc,oklch(var(--s)/1));
+    font-weight: bold;
+}
+
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+    background: var(--fallback-s,oklch(var(--s)/0.3));
+}
+
+.react-calendar__tile--active {
+    background: var(--fallback-p,oklch(var(--p)/1)) !important; 
+    color: var(--fallback-pc,oklch(var(--pc)/1)) !important; 
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+    opacity: 0.4;
+}
