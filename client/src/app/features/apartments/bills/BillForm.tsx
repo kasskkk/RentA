@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import type { CreateBillFormValues } from '../../../../lib/types';
-import agent from '../../../../lib/api/agent';
 import toast from 'react-hot-toast';
+import { useApartments } from '../../../../lib/hooks/useApartments';
 
 interface Props {
     apartmentId: string;
     closeModal: () => void;
-    refreshBills: () => void;
 }
 
-export default function BillForm({ apartmentId, closeModal, refreshBills }: Props) {
-    const [loading, setLoading] = useState(false);
+export default function BillForm({ apartmentId, closeModal }: Props) {
+    // Pobieramy mutację bezpośrednio z Twojego hooka
+    const { createBill } = useApartments(apartmentId);
 
-    // Używamy Omit, aby pominąć pola okresu rozliczeniowego, jeśli nadal istnieją w głównym typie
     const [formData, setFormData] = useState<Omit<CreateBillFormValues, 'periodStart' | 'periodEnd'>>({
         apartmentId: apartmentId,
         title: '',
@@ -21,28 +20,27 @@ export default function BillForm({ apartmentId, closeModal, refreshBills }: Prop
         dueDate: ''
     });
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        try {
-            const payload = {
-                ...formData,
-                // Konwertujemy kwotę na liczbę
-                amount: Number(formData.amount),
-                // Backend otrzyma null dla periodStart/End, ponieważ ich nie wysyłamy
-            };
+        
+        const payload = {
+            ...formData,
+            amount: Number(formData.amount),
+        };
 
-            await agent.Bills.create(payload);
-
-            toast.success('Rachunek dodany pomyślnie');
-            refreshBills();
-            closeModal();
-        } catch (error) {
-            console.error(error);
-            toast.error('Nie udało się dodać rachunku');
-        } finally {
-            setLoading(false);
-        }
+        // Wywołujemy mutację z hooka
+        createBill.mutate(payload, {
+            onSuccess: () => {
+                toast.success('Rachunek dodany pomyślnie');
+                closeModal();
+                // Nie musisz wywoływać refreshBills(), bo useApartments 
+                // ma już w sobie invalidateQueries(['bills', id])
+            },
+            onError: (error) => {
+                console.error(error);
+                toast.error('Nie udało się dodać rachunku');
+            }
+        });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -99,11 +97,20 @@ export default function BillForm({ apartmentId, closeModal, refreshBills }: Prop
                     </div>
 
                     <div className="modal-action">
-                        <button type="button" className="btn" onClick={closeModal} disabled={loading}>
+                        <button 
+                            type="button" 
+                            className="btn" 
+                            onClick={closeModal} 
+                            disabled={createBill.isPending}
+                        >
                             Anuluj
                         </button>
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? <span className="loading loading-spinner"></span> : 'Zapisz'}
+                        <button 
+                            type="submit" 
+                            className="btn btn-primary" 
+                            disabled={createBill.isPending}
+                        >
+                            {createBill.isPending ? <span className="loading loading-spinner"></span> : 'Zapisz'}
                         </button>
                     </div>
                 </form>

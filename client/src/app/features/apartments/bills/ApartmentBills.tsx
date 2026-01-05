@@ -85,8 +85,6 @@ export default function ApartmentBills({ isOwner }: Props) {
                 <BillForm
                     apartmentId={id!}
                     closeModal={() => setIsModalOpen(false)}
-                    // loadBills nie jest już potrzebne, bo React Query samo odświeży dane
-                    refreshBills={() => {}} 
                 />
             )}
         </div>
