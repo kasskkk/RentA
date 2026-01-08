@@ -49,6 +49,7 @@ public class ApartmentsController : BaseApiController
         return HandleResult(await Mediator.Send(new ApplyToApartment.Command { Id = id }));
     }
 
+    [Authorize(Policy = "IsApartmentOwner")]
     [HttpPut("{id}/members/{userId}")]
     public async Task<ActionResult> UpdateMemberStatus(string id, string userId, MemberStatusDto statusDto)
     {

@@ -69,7 +69,7 @@ export default function ApartmentFilters() {
                 </div>
 
                 <div className="flex items-center px-1 relative group min-w-[120px]">
-                    <span className="text-xs font-bold opacity-40 pr-2">Rooms</span>
+                    <span className="text-xs font-bold opacity-40 pr-2">Pokoje</span>
                     <select
                         className="select select-sm focus:outline-none bg-transparent w-full pr-8 appearance-none"
                         value={localFilters.rooms ?? ""}
@@ -81,10 +81,10 @@ export default function ApartmentFilters() {
                             });
                         }}
                     >
-                        <option value="all">Any</option>
+                        <option value="all">Wszystkie</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
-                        <option value="3">3+</option>
+                        {/* <option value="3">3+</option> */}
                     </select>
 
                 </div>

@@ -135,7 +135,7 @@ export default function ApartmentForm() {
                     {/* Header z przyciskiem do zdjęć */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-base-300 pb-4 gap-4">
                         <h2 className="card-title text-2xl font-bold">
-                            {apartment ? 'Edit Apartment' : 'Add New Apartment'}
+                            {apartment ? 'Edytuj mieszkanie' : 'Dodaj nowe mieszkanie'}
                         </h2>
                         
                         {id && (
@@ -153,24 +153,24 @@ export default function ApartmentForm() {
                     </div>
 
                     <div className="space-y-6">
-                        <GeneratedTextInput name="name" control={control} readOnly={true} label="Generated name" className="pointer-events-none bg-base-100 font-bold border-primary/20" />
-                        <TextAreaInput label="Description" name="description" control={control} defaultValue="" />
+                        <GeneratedTextInput name="name" control={control} readOnly={true} label="Generowana nazwa" className="pointer-events-none bg-base-100 font-bold border-primary/20" />
+                        <TextAreaInput label="Opis" name="description" control={control} defaultValue="" />
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-base-300 p-4 rounded-lg">
-                            <NumberInput label="Price (per month)" name="pricePerMonth" control={control} defaultValue={0} />
-                            <NumberInput label="Rooms" name="rooms" control={control} defaultValue={0} />
-                            <NumberInput label="Area (m²)" name="area" control={control} defaultValue={0} />
+                            <NumberInput label="Cena za miesiąc" name="pricePerMonth" control={control} defaultValue={0} />
+                            <NumberInput label="Liczba pokoi" name="rooms" control={control} defaultValue={0} />
+                            <NumberInput label="(m²)" name="area" control={control} defaultValue={0} />
                         </div>
 
                         <div className="space-y-4">
-                            <h3 className="font-semibold text-sm uppercase text-base-content/60 border-b border-base-300 pb-1">Location Details</h3>
+                            <h3 className="font-semibold text-sm uppercase text-base-content/60 border-b border-base-300 pb-1">Dane lokalizacji</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <TextInput label="City" name="city" control={control} defaultValue="" />
-                                <TextInput label="Street" name="street" control={control} defaultValue="" />
+                                <TextInput label="Miasto" name="city" control={control} defaultValue="" />
+                                <TextInput label="Ulicy" name="street" control={control} defaultValue="" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <TextInput label="Building Number" name="buildingNumber" control={control} defaultValue="" />
-                                <TextInput label="Apartment Number" name="apartmentNumber" control={control} defaultValue="" />
+                                <TextInput label="Numer budynku" name="buildingNumber" control={control} defaultValue="" />
+                                <TextInput label="Numer mieszkania" name="apartmentNumber" control={control} defaultValue="" />
                             </div>
                         </div>
 
@@ -180,14 +180,14 @@ export default function ApartmentForm() {
                         </div>
 
                         <div className="border-t border-base-300 pt-4">
-                            <LocationInput label="Pin on Map" control={control} name="location" />
+                            <LocationInput label="Pin na Mapie" control={control} name="location" />
                         </div>
                     </div>
 
                     <div className="card-actions justify-end mt-6 pt-4 border-t border-base-300">
-                        <button type="button" className="btn btn-ghost" onClick={() => navigate(-1)}>Cancel</button>
+                        <button type="button" className="btn btn-ghost" onClick={() => navigate(-1)}>Anuluj</button>
                         <button type="submit" className="btn btn-primary px-8">
-                            {apartment ? 'Save Changes' : 'Post Listing'}
+                            {apartment ? 'Zapisz zmiany' : 'Dodaj ogłoszenie'}
                         </button>
                     </div>
                 </form>

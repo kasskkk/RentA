@@ -1,6 +1,5 @@
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
-import { useLocation } from "react-router";
 import { useAccount } from "./useAccounts";
 import type { PagedList, Apartment, Bill } from "../types";
 import { useApartmentStore } from "../stores/useApartmentStore";
@@ -39,9 +38,9 @@ export const useUserApartments = () => {
         isPendingUserApartments
     }
 }
+
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();
-    const location = useLocation();
     const { currentUser } = useAccount();
     const { filters } = useApartmentStore();
 

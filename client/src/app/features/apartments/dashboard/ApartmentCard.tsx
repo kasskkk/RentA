@@ -35,7 +35,7 @@ export default function ApartmentCard({ apartment }: Props) {
                     </div>
                     <div className="flex items-center gap-1">
                         <span className="text-base-content/50">🚪</span>
-                        <span className="text-sm font-semibold">{apartment.rooms} Rooms</span>
+                        <span className="text-sm font-semibold">{apartment.rooms} Pokoje</span>
                     </div>
                 </div>
 
@@ -48,7 +48,7 @@ export default function ApartmentCard({ apartment }: Props) {
                         to={`/apartments/${apartment.id}`}
                         className="btn btn-primary btn-sm px-6 shadow-lg shadow-primary/30"
                     >
-                        Details
+                        Szczególy
                     </NavLink>
                 </div>
             </div>
