@@ -12,9 +12,6 @@ public class Fault
     public bool IsResolved { get; set; } = false;
 
     // Relacja z urządzeniem
-    public string DeviceId { get; set; }
-    public Device Device { get; set; }
-
-    // Opcjonalnie: Kto zgłosił (jeśli chcesz śledzić Usera)
-    // public string ReporterId { get; set; } 
+    public string? DeviceId { get; set; }
+    public Device? Device { get; set; }
 }

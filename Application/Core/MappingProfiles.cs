@@ -22,7 +22,7 @@ public class MappingProfiles : Profile
         CreateMap<DeviceDto, Device>();
         CreateMap<Fault, FaultDto>();
         CreateMap<Fault, FaultDto>()
-            .ForMember(d => d.DeviceName, o => o.MapFrom(s => s.Device.Name));
+            .ForMember(d => d.DeviceName, o => o.MapFrom(s => s.Device!.Name));
         CreateMap<CreateFaultDto, Fault>();
         CreateMap<CreateBillDto, Bill>();
         CreateMap<Bill, BillDto>();
