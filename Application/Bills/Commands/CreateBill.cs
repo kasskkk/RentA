@@ -14,7 +14,7 @@ public class CreateBill
 {
     public class Command : IRequest<Result<Unit>>
     {
-        public CreateBillDto BillDto { get; set; }
+        public required CreateBillDto BillDto { get; set; }
     }
 
     public class CommandValidator : AbstractValidator<Command>

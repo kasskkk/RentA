@@ -4,11 +4,11 @@ namespace Application.Faults.DTOs;
 
 public class FaultDto
 {
-    public string Id { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public required string Id { get; set; }
+    public required string Title { get; set; }
+    public required string Description { get; set; }
     public DateTime DateReported { get; set; }
     public bool IsResolved { get; set; }
-    public string DeviceId { get; set; }
-    public string DeviceName { get; set; } // Przydatne do wyświetlania
+    public required string DeviceId { get; set; }
+    public required string DeviceName { get; set; } // Przydatne do wyświetlania
 }

@@ -13,7 +13,7 @@ public class GetBills
 {
     public class Query : IRequest<Result<List<BillDto>>>
     {
-        public string ApartmentId { get; set; }
+        public required string ApartmentId { get; set; }
     }
 
     public class Handler(AppDbContext context, IMapper mapper, IUserAccessor userAccessor) : IRequestHandler<Query, Result<List<BillDto>>>

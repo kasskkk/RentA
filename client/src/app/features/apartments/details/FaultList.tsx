@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Device, Fault } from "../../../../lib/types";
 import { useApartments } from "../../../../lib/hooks/useApartments";
+import { useParams } from "react-router";
 
 interface Props {
     devices: Device[];
@@ -10,7 +11,8 @@ interface Props {
 
 export default function FaultList({ devices, isOwner, onAddClick }: Props) {
     const [loadingId, setLoadingId] = useState<string | null>(null);
-    const { resolveFault } = useApartments();
+    const { id } = useParams();
+    const { resolveFault } = useApartments(id);
     const allFaults = devices.flatMap(device =>
         device.faults ? device.faults.map(fault => ({ ...fault, deviceName: device.name })) : []
     ).sort((a, b) => new Date(b.dateReported).getTime() - new Date(a.dateReported).getTime());
