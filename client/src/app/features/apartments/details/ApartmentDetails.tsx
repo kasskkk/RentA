@@ -38,6 +38,11 @@ export default function ApartmentDetails() {
     const isMember = apartment.apartmentMembers?.some(member =>
         member.user.id === currentUser?.id && member.memberStatus === "Accepted"
     );
+
+    const isMemberApplied = apartment.apartmentMembers?.some(member =>
+        member.user.id === currentUser?.id
+    );
+
     const activeFaultsCount = apartment.devices?.reduce((acc: number, device: Device) =>
         acc + (device.faults?.filter(f => !f.isResolved).length || 0), 0) || 0;
 
@@ -93,7 +98,7 @@ export default function ApartmentDetails() {
                             </div>
 
                             <div className="card-actions mt-6 flex flex-col gap-2">
-                                {(!isMember) && (
+                                {(!isMemberApplied) && (
                                     <button
                                         className="btn btn-primary w-full"
                                         disabled={applyToApartment.isPending}

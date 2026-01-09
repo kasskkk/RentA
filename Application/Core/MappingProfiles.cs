@@ -1,4 +1,3 @@
-using System;
 using Application.Apartments.DTOs;
 using Application.Bills.DTOs;
 using Application.Faults.DTOs;
@@ -21,8 +20,8 @@ public class MappingProfiles : Profile
         CreateMap<User, UserProfile>();
         CreateMap<Device, DeviceDto>();
         CreateMap<DeviceDto, Device>();
-        CreateMap<Fault, Application.Apartments.DTOs.FaultDto>();
-        CreateMap<Fault, Application.Faults.DTOs.FaultDto>()
+        CreateMap<Fault, Apartments.DTOs.FaultDto>();
+        CreateMap<Fault, Faults.DTOs.FaultDto>()
             .ForMember(d => d.DeviceName, o => o.MapFrom(s => s.Device.Name));
         CreateMap<CreateFaultDto, Fault>();
         CreateMap<CreateBillDto, Bill>();
