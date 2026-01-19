@@ -1,6 +1,7 @@
 using System;
 using Application.Apartments.DTOs;
 using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain;
@@ -16,11 +17,24 @@ public class GetApartmentList
     {
         public required ApartmentParams Params { get; set; }
     }
-    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Query, Result<PagedList<ApartmentDto, DateTime?>>>
+    public class Handler(AppDbContext context, IMapper mapper, IUserAccessor userAccessor) : IRequestHandler<Query, Result<PagedList<ApartmentDto, DateTime?>>>
     {
         public async Task<Result<PagedList<ApartmentDto, DateTime?>>> Handle(Query request, CancellationToken cancellationToken)
         {
             var query = context.Apartments.AsQueryable();
+
+            var currentUserId = userAccessor.GetUserId();
+
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                var isOwner = await context.ApartmentMembers
+                    .AnyAsync(m => m.UserId == currentUserId && m.IsOwner, cancellationToken);
+
+                if (isOwner)
+                {
+                    query = query.Where(x => x.ApartmentMembers.Any(m => m.UserId == currentUserId && m.IsOwner));
+                }
+            }
 
             if (request.Params.Cursor.HasValue)
             {

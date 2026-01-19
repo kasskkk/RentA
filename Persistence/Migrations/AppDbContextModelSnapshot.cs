@@ -103,9 +103,95 @@ namespace Persistence.Migrations
                     b.ToTable("ApartmentMembers");
                 });
 
+            modelBuilder.Entity("Domain.Bill", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ApartmentId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApartmentId");
+
+                    b.ToTable("Bills");
+                });
+
+            modelBuilder.Entity("Domain.Device", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ApartmentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApartmentId");
+
+                    b.ToTable("Devices");
+                });
+
+            modelBuilder.Entity("Domain.Fault", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateReported")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DateResolved")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("Faults");
+                });
+
             modelBuilder.Entity("Domain.Photo", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ApartmentId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PublicId")
@@ -121,6 +207,8 @@ namespace Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApartmentId");
 
                     b.HasIndex("UserId");
 
@@ -350,13 +438,47 @@ namespace Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Bill", b =>
+                {
+                    b.HasOne("Domain.Apartment", "Apartment")
+                        .WithMany("Bills")
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Apartment");
+                });
+
+            modelBuilder.Entity("Domain.Device", b =>
+                {
+                    b.HasOne("Domain.Apartment", null)
+                        .WithMany("Devices")
+                        .HasForeignKey("ApartmentId");
+                });
+
+            modelBuilder.Entity("Domain.Fault", b =>
+                {
+                    b.HasOne("Domain.Device", "Device")
+                        .WithMany("Faults")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Device");
+                });
+
             modelBuilder.Entity("Domain.Photo", b =>
                 {
+                    b.HasOne("Domain.Apartment", "Apartment")
+                        .WithMany("Photos")
+                        .HasForeignKey("ApartmentId");
+
                     b.HasOne("Domain.User", "User")
                         .WithMany("Photos")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Apartment");
 
                     b.Navigation("User");
                 });
@@ -415,6 +537,17 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Apartment", b =>
                 {
                     b.Navigation("ApartmentMembers");
+
+                    b.Navigation("Bills");
+
+                    b.Navigation("Devices");
+
+                    b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("Domain.Device", b =>
+                {
+                    b.Navigation("Faults");
                 });
 
             modelBuilder.Entity("Domain.User", b =>

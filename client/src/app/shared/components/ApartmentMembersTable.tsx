@@ -18,9 +18,9 @@ export default function ApartmentMembersTable({ apartment }: Props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Contact</th>
-                        <th>Decision</th>
+                        <th>Dane</th>
+                        <th>Kontakt</th>
+                        <th>Decyzja</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,16 +37,10 @@ export default function ApartmentMembersTable({ apartment }: Props) {
                                 <span className="badge badge-ghost badge-sm">✉️: {memb.user.email}</span>
                             </td>
                             <td>
-                                {/* <span className={`badge badge-outline font-semibold ${memb.memberStatus === 'Accepted' ? 'badge-success' :
-                                    memb.memberStatus === 'Rejected' ? 'badge-error' :
-                                        'badge-warning'
-                                    }`}>
-                                    {memb.memberStatus}
-                                </span> */}
-
                                 <div className="relative w-full max-w-xs">
                                     <select
-                                        className={`select select-sm focus:outline-none w-full pr-8 font-semibold ${memb.memberStatus === 'Accepted' ? 'text-success' :
+                                        className={`select select-sm focus:outline-none w-full pr-8 font-semibold 
+                                            ${memb.memberStatus === 'Accepted' ? 'text-success' :
                                             memb.memberStatus === 'Rejected' ? 'text-error' :
                                                 'text-warning'
                                             }`}
@@ -59,9 +53,9 @@ export default function ApartmentMembersTable({ apartment }: Props) {
                                             });
                                         }}
                                     >
-                                        <option value="Pending">Pending ⏳</option>
-                                        <option value="Accepted">Accepted ✅</option>
-                                        <option value="Rejected">Rejected ❌</option>
+                                        <option value="Pending">Oczekujący/a ⏳</option>
+                                        <option value="Accepted">Zaakceptowany/a ✅</option>
+                                        <option value="Rejected">Odrzucony/a ❌</option>
                                     </select>
                                 </div>
                             </td>

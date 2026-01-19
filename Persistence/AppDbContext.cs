@@ -10,7 +10,9 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
     public DbSet<Apartment> Apartments { get; set; }
     public DbSet<ApartmentMember> ApartmentMembers { get; set; }
     public DbSet<Photo> Photos { get; set; }
-
+    public DbSet<Device> Devices { get; set; }
+    public DbSet<Fault> Faults { get; set; }
+    public DbSet<Bill> Bills { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -27,6 +29,16 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<User>(op
             .HasOne(x => x.Apartment)
             .WithMany(x => x.ApartmentMembers)
             .HasForeignKey(x => x.ApartmentId);
+        builder.Entity<Fault>()
+            .HasOne(f => f.Device)
+            .WithMany(d => d.Faults)
+            .HasForeignKey(f => f.DeviceId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<Bill>()
+            .HasOne(b => b.Apartment)
+            .WithMany(a => a.Bills)
+            .HasForeignKey(b => b.ApartmentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

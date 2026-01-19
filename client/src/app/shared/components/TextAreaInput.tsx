@@ -15,7 +15,6 @@ export default function TextAreaInput<T extends FieldValues>(props: Props<T>) {
 
             <textarea
                 {...field}
-                placeholder="Type here"
                 className={`textarea ${fieldState.error ? 'input-error' : ''} ${fieldState.error ? 'placeholder-red-500' : ''}`}
             />
 

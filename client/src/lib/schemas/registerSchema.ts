@@ -7,6 +7,7 @@ export const registerSchema = z.object({
     password: requiredString('password'),
     firstName: requiredString('firstName'),
     lastName: requiredString('lastName'),
+    phoneNumber: requiredString('phoneNumber'),
     isOwner: z.boolean()
 })
 

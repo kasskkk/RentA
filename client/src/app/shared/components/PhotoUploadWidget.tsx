@@ -26,15 +26,15 @@ export default function PhotoUploadWidget({ uploadPhoto, loading }: Props) {
     }, [uploadPhoto])
 
     const { getRootProps, getInputProps } = useDropzone({ onDrop })
+
     return (
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-3 gap-4"> 
             <fieldset className="fieldset">
                 <legend className="fieldset-legend">Pick a file or drop</legend>
 
                 <div {...getRootProps()}>
                     <input {...getInputProps()} className="hidden" />
 
-                    {/* <input type="file" className="file-input" readOnly /> */}
                     <div className="file-input">
                         <div className="bg-base-200 text-base-content px-2 py-1 w-27 flex justify-center">Select file</div>
                         <div className="px-5">
@@ -54,9 +54,9 @@ export default function PhotoUploadWidget({ uploadPhoto, loading }: Props) {
                 {files[0]?.preview &&
                     <Cropper
                         src={files[0].preview}
-                        style={{ height: 300, width: 300 }}
-                        initialAspectRatio={1}
-                        aspectRatio={1}
+                        style={{ height: 300, width: '100%' }} 
+
+                        autoCropArea={1}           
                         preview='.img-preview'
                         guides={false}
                         viewMode={1}
@@ -68,9 +68,10 @@ export default function PhotoUploadWidget({ uploadPhoto, loading }: Props) {
             <div>
                 <div>Step 3 - Preview</div>
                 {files[0]?.preview &&
-                    <div className="img-preview w-75 h-75 overflow-hidden" />
+
+                    <div className="img-preview w-full min-h-[200px] overflow-hidden bg-base-200" style={{ height: 'auto' }} />
                 }
-                <button onClick={onCrop} className="btn btn-primary" disabled={loading}>Upload</button>
+                <button onClick={onCrop} className="btn btn-primary mt-2" disabled={loading}>Upload</button>
             </div>
         </div>
     )

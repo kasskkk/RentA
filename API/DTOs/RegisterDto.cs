@@ -7,6 +7,7 @@ public class RegisterDto
 {
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
+    public string? PhoneNumber { get; set; }
     [Required]
     public string DisplayName { get; set; } = "";
     [Required]

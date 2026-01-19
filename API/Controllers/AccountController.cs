@@ -18,6 +18,7 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
         {
             FirstName = registerDto.FirstName,
             LastName = registerDto.LastName,
+            PhoneNumber = registerDto.PhoneNumber,
             UserName = registerDto.Email,
             Email = registerDto.Email,
             DisplayName = registerDto.DisplayName
@@ -64,6 +65,7 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
             Email = user.Email!,
             Id = user.Id,
             ImageUrl = user.ImageUrl,
+            PhoneNumber = user.PhoneNumber,
             FirstName = user.FirstName,
             LastName = user.LastName,
             UserRole = roles.FirstOrDefault()!

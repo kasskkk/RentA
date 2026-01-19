@@ -1,13 +1,46 @@
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
-import { useLocation } from "react-router";
 import { useAccount } from "./useAccounts";
-import type { PagedList, Apartment } from "../types";
+import type { PagedList, Apartment, Bill } from "../types";
 import { useApartmentStore } from "../stores/useApartmentStore";
+
+export const useUserBills = () => {
+    const { currentUser } = useAccount();
+
+    const { data: userBills, isPending: isPendingUserBills } = useQuery({
+        queryKey: ['userBills'],
+        queryFn: async () => {
+            const response = await agent.get<Bill[]>('/bills');
+            return response.data;
+        },
+        enabled: !!currentUser
+    });
+
+    return {
+        userBills,
+        isPendingUserBills
+    }
+}
+export const useUserApartments = () => {
+    const { currentUser } = useAccount();
+
+    const { data: userApartments, isPending: isPendingUserApartments } = useQuery({
+        queryKey: ['userApartments'],
+        queryFn: async () => {
+            const response = await agent.get<Apartment[]>('/apartments/my');
+            return response.data;
+        },
+        enabled: !!currentUser
+    });
+
+    return {
+        userApartments,
+        isPendingUserApartments
+    }
+}
 
 export const useApartments = (id?: string) => {
     const queryClient = useQueryClient();
-    const location = useLocation();
     const { currentUser } = useAccount();
     const { filters } = useApartmentStore();
 
@@ -29,11 +62,9 @@ export const useApartments = (id?: string) => {
         initialPageParam: null,
         placeholderData: keepPreviousData,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
-        enabled: location.pathname === '/apartments'
-            && !!currentUser
+        // enabled: location.pathname === '/apartments'
+        enabled: !!currentUser
     });
-
-    const apartments = apartmentsGroups?.pages.flatMap(page => page.items) ?? [];
 
     const { data: apartment, isPending: isPendingApartment } = useQuery({
         queryKey: ['apartments', id],
@@ -56,6 +87,46 @@ export const useApartments = (id?: string) => {
             })
         }
     })
+
+    const createFault = useMutation({
+        mutationFn: async (newFault: { title: string; description: string; deviceId: string; dateReported: string }) => {
+            const response = await agent.post('/faults', newFault);
+            return response.data;
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
+
+    const resolveFault = useMutation({
+        mutationFn: async (faultId: string) => {
+            await agent.put(`/faults/${faultId}/resolve`, {});
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
+
+    const { data: bills, isPending: isPendingBills } = useQuery({
+        queryKey: ['bills', id],
+        queryFn: async () => {
+            const response = await agent.get<Bill[]>(`/bills/${id}`);
+            return response.data;
+        },
+        enabled: !!id && !!currentUser
+    });
+
+    const createBill = useMutation({
+        mutationFn: async (bill: unknown) => {
+            const response = await agent.post('/bills', bill);
+            return response.data;
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['bills', id] });
+            // Odświeżamy też globalną listę rachunków użytkownika
+            await queryClient.invalidateQueries({ queryKey: ['userBills'] });
+        }
+    });
 
     const updateApartment = useMutation({
         mutationFn: async (apartment: Apartment) => {
@@ -137,8 +208,22 @@ export const useApartments = (id?: string) => {
         }
     });
 
+    const uploadApartmentPhoto = useMutation({
+        mutationFn: async ({ id, file }: { id: string; file: Blob }) => {
+            const formData = new FormData();
+            formData.append('File', file);
+
+            return await agent.post(`/apartments/${id}/photos`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['apartments', id] });
+        }
+    });
+
     return {
-        apartments,
+        apartments: apartmentsGroups?.pages.flatMap(page => page.items) ?? [],
         isFetchingNextPage,
         fetchNextPage,
         hasNextPage,
@@ -149,6 +234,13 @@ export const useApartments = (id?: string) => {
         apartment,
         isPendingApartment,
         applyToApartment,
-        updateMemberStatus
+        updateMemberStatus,
+        createBill,
+        bills,
+        isPendingBills,
+        createFault,
+        resolveFault,
+        uploadApartmentPhoto
     }
+    
 }

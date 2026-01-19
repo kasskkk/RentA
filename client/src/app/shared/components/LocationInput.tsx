@@ -12,9 +12,10 @@ export default function LocationInput<T extends FieldValues>({ label, ...props }
     const { field, fieldState } = useController(props);
     const [inputValue, setInputValue] = useState(typeof field.value === "string" ? field.value : '');
     const [suggestions, setSuggestions] = useState<LocationIQSuggestion[]>([]);
+    const key = import.meta.env.VITE_LOCATIONIQ_KEY;
 
     const locationUrl =
-        "https://api.locationiq.com/v1/autocomplete?key=pk.12f43ca8a433c0b517449481e01261a1&limit=5&dedupe=1&";
+        `https://api.locationiq.com/v1/autocomplete?key=${key}&limit=5&dedupe=1&`;
 
     // Debounced query
     const [debouncedQuery, setDebouncedQuery] = useState(inputValue);

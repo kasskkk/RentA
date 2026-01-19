@@ -1,5 +1,6 @@
 using System;
 using Application.Profiles.DTOs;
+using Domain;
 using Domain.Enum;
 
 namespace Application.Apartments.DTOs;
@@ -22,5 +23,7 @@ public class ApartmentDto
     public string? ApartmentNumber { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public ICollection<DeviceDto> Devices { get; set; } = [];
     public ICollection<ApartmentMemberDto> ApartmentMembers { get; set; } = [];
+    public ICollection<Photo> Photos { get; set; } = [];
 }

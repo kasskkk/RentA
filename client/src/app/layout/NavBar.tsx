@@ -54,14 +54,14 @@ export default function NavBar() {
                     <li>
                         <NavLink to={`/profiles/${currentUser?.id}`}>
                             <div>
-                                Profile
+                                Profil
                             </div>
                         </NavLink>
                     </li>
                     {/* <li><a>Settings | Profile setting idk</a></li> */}
                     <li><button
                         onClick={() => { logoutUser.mutate() }}
-                    >Logout</button></li>
+                    >Wyloguj</button></li>
                 </ul>
             </div>
         </nav>

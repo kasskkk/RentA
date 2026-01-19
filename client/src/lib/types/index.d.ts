@@ -3,6 +3,34 @@ type PagedList<T, TCursor> = {
     nextCursor: TCursor
 }
 
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            'calendar-date': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+             
+            };
+            'calendar-month': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+        }
+    }
+}
+export type Fault = {
+    id: string;
+    title: string;
+    description: string;
+    dateReported: string;
+    isResolved: boolean;
+    dateResolved?: string;
+    deviceId: string;
+    deviceName?: string;
+}
+
+export type Device = {
+    id?: string;
+    name: string;
+    description?: string;
+    faults: Fault[];
+}
+
 type Apartment = {
     id: string
     createdAt: string
@@ -19,7 +47,10 @@ type Apartment = {
     apartmentNumber?: string
     latitude: number
     longitude: number
+
     apartmentMembers: ApartmentMember[]
+    devices: Device[]
+    photos: Photo[]
 }
 
 export type MemberStatus = 'Pending' | 'Accepted' | 'Rejected'
@@ -90,4 +121,19 @@ type Photo = {
     publicId: string
     userId: string
 }
+export interface Bill {
+    id: string;
+    title: string;
+    description?: string;
+    amount: number;
+    dueDate: string;
+    apartmentId: string;
+}
 
+export interface CreateBillFormValues {
+    apartmentId: string;
+    title: string;
+    description: string;
+    amount: number;
+    dueDate: string;
+}

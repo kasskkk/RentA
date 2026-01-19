@@ -69,6 +69,17 @@ export default function RegisterForm() {
                 </fieldset>
 
                 <fieldset className="mb-4">
+                    <label className="label">Phone number</label>
+                    <input
+                        {...register("phoneNumber")}
+                        type="text"
+                        className={`input w-full ${errors.phoneNumber ? 'input-error' : ''}`}
+                        placeholder="Phone number"
+                    />
+                    {errors.phoneNumber && <p className="text-error text-sm mt-1">{errors.phoneNumber.message}</p>}
+                </fieldset>
+
+                <fieldset className="mb-4">
                     <label className="label">Email</label>
                     <input
                         {...register("email")}
