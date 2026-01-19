@@ -1,13 +1,14 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace Domain;
 
+[Index(nameof(CreatedAt))]
 public class Apartment
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
-    public DateTime Date { get; set; }
-    // creating NAME from server side
-    public required string Name { get; set; } // "Street+BuildingNumber+ApartmentNumber+City" 
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public required string Name { get; set; }
     public required string Description { get; set; }
     public decimal PricePerMonth { get; set; }
     public bool IsAvailable { get; set; }
@@ -21,4 +22,8 @@ public class Apartment
     public string? ApartmentNumber { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public ICollection<Device> Devices { get; set; } = [];
+    public ICollection<ApartmentMember> ApartmentMembers { get; set; } = [];
+    public ICollection<Bill> Bills { get; set; } = [];
+    public ICollection<Photo> Photos { get; set; } = [];
 }

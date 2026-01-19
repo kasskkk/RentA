@@ -2,6 +2,8 @@ import { useController, type UseControllerProps, type FieldValues } from "react-
 
 type Props<T extends FieldValues> = {
     label: string;
+    readOnly?: boolean;
+    className?: string;
 } & UseControllerProps<T>;
 
 export default function TextInput<T extends FieldValues>(props: Props<T>) {
@@ -14,9 +16,9 @@ export default function TextInput<T extends FieldValues>(props: Props<T>) {
             <legend className="fieldset-legend">{props.label}</legend>
 
             <input
+                readOnly={props.readOnly}
                 {...field}
                 type="text"
-                placeholder="Type here"
                 className={`input ${fieldState.error ? 'input-error' : ''} ${fieldState.error ? 'placeholder-red-500' : ''}`}
             />
 

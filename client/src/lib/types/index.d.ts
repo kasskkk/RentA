@@ -1,6 +1,39 @@
+type PagedList<T, TCursor> = {
+    items: T[],
+    nextCursor: TCursor
+}
+
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            'calendar-date': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+             
+            };
+            'calendar-month': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+        }
+    }
+}
+export type Fault = {
+    id: string;
+    title: string;
+    description: string;
+    dateReported: string;
+    isResolved: boolean;
+    dateResolved?: string;
+    deviceId: string;
+    deviceName?: string;
+}
+
+export type Device = {
+    id?: string;
+    name: string;
+    description?: string;
+    faults: Fault[];
+}
+
 type Apartment = {
     id: string
-    date: string
+    createdAt: string
     name: string
     description: string
     pricePerMonth: number
@@ -14,8 +47,25 @@ type Apartment = {
     apartmentNumber?: string
     latitude: number
     longitude: number
+
+    apartmentMembers: ApartmentMember[]
+    devices: Device[]
+    photos: Photo[]
 }
- type LocationIQSuggestion = {
+
+export type MemberStatus = 'Pending' | 'Accepted' | 'Rejected'
+
+export type ApartmentMember = {
+    userId: string
+    apartmentId: string
+    user: User
+    isOwner: boolean
+    memberStatus: MemberStatus
+    createdAt: string
+    acceptedAt?: string
+}
+
+type LocationIQSuggestion = {
     place_id: string
     osm_id: string
     osm_type: string
@@ -31,7 +81,7 @@ type Apartment = {
     address: LocationIQAddress
 }
 
- type LocationIQAddress = {
+type LocationIQAddress = {
     name: string
     house_number: string
     road: string
@@ -44,9 +94,46 @@ type Apartment = {
     country_code: string
 }
 
+type Profile = {
+    id: string
+    email: string
+    phoneNumber: string
+    displayName: string
+    imageUrl?: string
+    firstName?: string
+    lastName?: string
+}
+
 type User = {
     id: string
     email: string
+    phoneNumber: string
     displayName: string
+    firstName?: string
+    lastName?: string
     imageUrl?: string
+    userRole: string
+}
+
+type Photo = {
+    id: string
+    url: string
+    publicId: string
+    userId: string
+}
+export interface Bill {
+    id: string;
+    title: string;
+    description?: string;
+    amount: number;
+    dueDate: string;
+    apartmentId: string;
+}
+
+export interface CreateBillFormValues {
+    apartmentId: string;
+    title: string;
+    description: string;
+    amount: number;
+    dueDate: string;
 }

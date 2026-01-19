@@ -1,7 +1,11 @@
+import { NavLink, useLocation } from "react-router";
 import { useAccount } from "../../lib/hooks/useAccounts"
+import ApartmentFilters from "../features/apartments/filters/ApartmentFilters";
 
 export default function NavBar() {
     const { currentUser, logoutUser } = useAccount();
+    const location = useLocation();
+    const isApartmentsPage = location.pathname === "/apartments"
 
     return (
         <nav className="navbar w-full bg-base-300 px-4">
@@ -15,32 +19,49 @@ export default function NavBar() {
             </label>
 
             <div className="px-4">RenTa</div>
+            <div className="divider divider-horizontal"></div>
+            <span className="text-xl font-bold tracking-tight hidden md:block">
+                Apart<span className="text-primary">Me</span>
+            </span>
+
+            {isApartmentsPage && (
+                <ApartmentFilters />
+            )}
 
             <div className="ml-auto dropdown dropdown-end">
-                <div tabIndex={-1} role="button" className="btn bg-base-300">
+                <div tabIndex={-1} role="button" className="btn bg-base-300 border-gray-250 border-2">
                     <div className="avatar">
-                        <div className="w-10 rounded-full">
-                            <img
-                                alt="Avatar"
-                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                            />
+                        <div className="w-9 h-9 rounded-full">
+                            {currentUser?.imageUrl ? (
+                                <img
+                                    src={currentUser.imageUrl}
+                                    alt={currentUser.displayName?.[0]}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <>
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-200 font-semibold">
+                                        {currentUser?.displayName?.[0]?.toUpperCase() ?? "U"}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                     <span >{currentUser?.displayName}</span>
                 </div>
                 <ul
-                    tabIndex={-1}
                     className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                     <li>
-                        <a className="justify-between">
-                            Profile
-                            <span className="badge">New</span>
-                        </a>
+                        <NavLink to={`/profiles/${currentUser?.id}`}>
+                            <div>
+                                Profil
+                            </div>
+                        </NavLink>
                     </li>
-                    <li><a>Settings | Profile setting idk</a></li>
+                    {/* <li><a>Settings | Profile setting idk</a></li> */}
                     <li><button
-                    onClick={() => {logoutUser.mutate()}}
-                    >Logout</button></li>
+                        onClick={() => { logoutUser.mutate() }}
+                    >Wyloguj</button></li>
                 </ul>
             </div>
         </nav>
